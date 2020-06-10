@@ -1,8 +1,10 @@
-import {clean, format, validate} from 'rut.js';
+import {rutUtils} from '../utils/rutUtils'
 
 const rut = (target: string, setRut: Function) => {
-    if (validate(clean(target))) setRut({value: format(target), error: ''});
-    else setRut({value: format(target), error: 'Debes ingresar un rut valido'});
+    if (rutUtils.validate( rutUtils.clean(target) )) {
+        setRut({value: rutUtils.format(target), error: ''});
+    }
+    else setRut({value: rutUtils.format(target), error: 'Debes ingresar un rut valido'});
 }
 
 const name = (target: string) => {
