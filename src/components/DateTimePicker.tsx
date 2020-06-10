@@ -8,7 +8,7 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 type Props = React.ComponentProps<typeof TextInput> & {isVisible?: boolean} & {mode?: string}
     & {value?: {}} & {toggleDatePicker?: Function } & {onConfirm?: Function} ;
 
-const Checkbox = ({textInputProps, isVisible, mode, value, toggleDatePicker, onConfirm}: Props) => (
+const DateTimePicker = ({textInputProps, isVisible, mode, value, toggleDatePicker, onConfirm}: Props) => (
     <>
         <TouchableWithoutFeedback onPress={toggleDatePicker}>
 
@@ -49,4 +49,4 @@ const styles = StyleSheet.create({
 
 });
 
-export default memo(Checkbox);
+export default memo(DateTimePicker);
