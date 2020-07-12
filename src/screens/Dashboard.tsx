@@ -6,6 +6,7 @@ import Paragraph from '../components/Paragraph';
 import Button from '../components/Button';
 import {Navigation} from '../types';
 import {AuthService} from '../clients/auth/AuthService';
+import AppBarHeader from "../components/AppBarHeader";
 
 type Props = {
     navigation: Navigation;
@@ -20,14 +21,12 @@ const Dashboard = ({navigation}: Props) => {
 
     const _onLogoutPress = async () => {
         await AuthService.logout();
-        navigation.dispatch({
-            key: 'HomeScreen',
-            type: 'resetStack',
-            routeName: 'HomeScreen'
-        });
+        navigation.navigate('Init');
     }
 
     return (
+        <>
+        <AppBarHeader navigation={navigation} title={'Dashboard'} />
         <Background>
             <Logo/>
             <Header>Hola, {name}</Header>
@@ -38,6 +37,7 @@ const Dashboard = ({navigation}: Props) => {
                 Logout
             </Button>
         </Background>
+        </>
     );
 };
 

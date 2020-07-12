@@ -1,21 +1,26 @@
-import React, {memo, useState, useEffect} from 'react';
+import React, {memo, useEffect} from 'react';
 import {AuthService} from '../clients/auth/AuthService';
-import {HomeScreen, Dashboard} from '../screens';
 import {Navigation} from "../types";
+import { View } from 'react-native';
+import {Text, ActivityIndicator} from "react-native-paper";
+import {theme} from "../core/theme";
 
 type Props = {
     navigation: Navigation;
 };
 
 const Init = ({navigation}: Props) => {
-    const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
 
     useEffect(() => {
-        AuthService.isLoggedIn(setIsUserLoggedIn);
+        AuthService.isLoggedIn(navigation);
     })
 
     return (
-        isUserLoggedIn ? <Dashboard navigation={navigation} /> : <HomeScreen navigation={navigation} />
+        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+            <ActivityIndicator animating={true} size={50} color={theme.colors.primary} />
+
+            <Text style={{marginTop: 30}}> Cargando.. </Text>
+        </View>
     )
 };
 

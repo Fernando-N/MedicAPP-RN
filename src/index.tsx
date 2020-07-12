@@ -1,6 +1,8 @@
-import { createAppContainer } from 'react-navigation';
-import { createStackNavigator } from 'react-navigation-stack';
+import React from 'react';
+import { createStackNavigator } from '@react-navigation/stack';
+import { createDrawerNavigator } from "@react-navigation/drawer";
 import { theme } from './core/theme';
+import NavigationDrawer from './components/NavigationDrawer';
 import {
     Init,
     HomeScreen,
@@ -8,7 +10,10 @@ import {
     RegisterScreen,
     ForgotPasswordScreen,
     Dashboard,
+    MessageScreen,
 } from './screens';
+import ProfileScreen from "./screens/ProfileScreen";
+import ParamedicsScreen from "./screens/ParamedicsScreen";
 
 const navigationOptionsDefault = {
     headerStyle: {
@@ -17,78 +22,33 @@ const navigationOptionsDefault = {
     headerTintColor: '#FFF',
 }
 
-const Router = createStackNavigator(
-    {
-        Init: {
-          screen: Init,
-          navigationOptions: {
-              headerShown: false,
-          }
-        },
-        HomeScreen: {
-            screen: HomeScreen,
-            navigationOptions: {
-                headerShown: false,
-            }
-        },
-        LoginScreen: {
-            screen: LoginScreen,
-            navigationOptions: {
-                title: 'Ingresar',
-                ...navigationOptionsDefault
-            }
-        },
-        RegisterScreen: {
-            screen: RegisterScreen,
-            navigationOptions: {
-                title: 'Registrarme',
-                ...navigationOptionsDefault
-            }
-        },
-        ForgotPasswordScreen: {
-            screen: ForgotPasswordScreen,
-            navigationOptions: {
-                title: 'Recuperar contraseña',
-                ...navigationOptionsDefault
-            }
-        },
-        Dashboard: {
-            screen: Dashboard,
-            navigationOptions: {
-                title: 'Inicio',
-                ...navigationOptionsDefault
-            }
-        },
-    },
-    {
-        initialRouteName: 'Init',
-    }
+const Stack = createStackNavigator();
+const Drawer = createDrawerNavigator();
+
+const NoAuthNavigator = (): React.ReactElement => (
+    <Stack.Navigator>
+        <Stack.Screen name={'HomeScreen'} component={HomeScreen} options={{headerShown: false}} />
+        <Stack.Screen name={'LoginScreen'} component={LoginScreen} options={{title: 'Ingresar', ...navigationOptionsDefault}} />
+        <Stack.Screen name={'RegisterScreen'} component={RegisterScreen} options={{title: 'Registrarme', ...navigationOptionsDefault}} />
+        <Stack.Screen name={'ForgotPasswordScreen'} component={ForgotPasswordScreen} options={{title: 'Recuperar contraseña', ...navigationOptionsDefault}} />
+    </Stack.Navigator>
 );
 
-const prevGetStateForActionHomeStack = Router.router.getStateForAction;
+const AuthNavigator = (): React.ReactElement => (
+    <Drawer.Navigator drawerContent={(navigation) => <NavigationDrawer navigation={navigation} />}>
+        <Drawer.Screen name={'DashboardScreen'} component={Dashboard} />
+        <Drawer.Screen name={'ProfileScreen'} component={ProfileScreen} />
+        <Drawer.Screen name={'MessageScreen'} component={MessageScreen} />
+        <Drawer.Screen name={'ParamedicsScreen'} component={ParamedicsScreen} />
+    </Drawer.Navigator>
+);
 
-Router.router.getStateForAction = (action, state) => {
+const AppNavigator = (props: Partial< React.ComponentProps<typeof Stack.Navigator>>): React.ReactElement => (
+    <Stack.Navigator {...props} headerMode={'none'} >
+        <Stack.Screen name={'Init'} component={Init} options={{headerShown: false}} />
+        <Stack.Screen name={'NoAuthNavigator'} component={NoAuthNavigator} />
+        <Stack.Screen name={'AuthNavigator'} component={AuthNavigator} />
+    </Stack.Navigator>
+);
 
-    if (state && action.type === 'ReplaceCurrentScreen') {
-        const routes = state.routes.slice(0, state.routes.length - 1);
-        routes.push(action);
-        return {
-            ...state,
-            routes,
-            index: routes.length - 1,
-        };
-    }else if (state && action.type === 'resetStack') {
-        const routes = state.routes.slice(0, 0);
-        routes.push(action);
-        return {
-            ...state,
-            routes,
-            index: 0,
-        }
-    }
-
-    return prevGetStateForActionHomeStack(action, state);
-
-};
-
-export default createAppContainer(Router);
+export default AppNavigator;

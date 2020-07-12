@@ -22,8 +22,7 @@ const post = (url = '', body = {}, headers = {}) =>
     headers: {
       Accept: 'application/json',
       ...headers,
-    },
-      timeout: 2
+    }
   });
 
 const put = (url = '', body = {}, headers = {}) =>

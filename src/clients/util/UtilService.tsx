@@ -25,7 +25,6 @@ const login = async (email, password) => {
             return {success: true, error: ''};
         })
         .catch(error => {
-            console.log(error)
             if (error.response && error.response.data.error_description === 'Bad credentials') {
                 return {success: false, error: '¡Usuario o contraseña incorrecto!'};
             } else {
@@ -34,15 +33,37 @@ const login = async (email, password) => {
         });
 }
 
-const forgotPassword = (email: string) => {
-    const endpoint = 'auth/forgot';
+const getNationalities = (setNationalities) => {
+    httpClient.get('nationality')
+        .then(response => {
+            setNationalities(response.data);
+        })
+        .catch(error => {
+            console.error(error)
+            setNationalities([{value: null, label: ''}]);
+        });
+}
 
-    const headers = {
-        'email': email,
-        'Content-Type': 'application/x-www-form-urlencoded',
-    };
+const getRegions = (setRegions) => {
+    httpClient.get('region')
+        .then(response => {
+            setRegions(response.data);
+        })
+        .catch(error => {
+            console.error(error)
+            setRegions([{value: null, label: ''}]);
+        });
+}
 
-    httpClient.post(endpoint, headers);
+const getCommunes = (id: string, setCommunes) => {
+    httpClient.get(`region/${id}/communes`)
+        .then(response => {
+            setCommunes(response.data);
+        })
+        .catch(error => {
+            console.error(error);
+            setCommunes([{value: null, label: ''}]);
+        })
 }
 
 const logout = async () => {
@@ -115,12 +136,8 @@ const getUserInfo = (setUserInfo) => {
     });
 }
 
-export const AuthService = {
-    login,
-    logout,
-    forgotPassword,
-    isLoggedIn,
-    getUserName,
-    getUserInfo,
-    getToken,
+export const UtilService = {
+    getNationalities,
+    getRegions,
+    getCommunes
 }

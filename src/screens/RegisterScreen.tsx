@@ -1,15 +1,18 @@
-import React, {memo, useState} from 'react';
-import {StyleSheet, Text, View, Alert, Keyboard} from 'react-native';
+import React, { memo, useState, useEffect } from 'react';
+import { StyleSheet, Text, View, Alert, Keyboard } from 'react-native';
 import Background from "../components/Background";
 import Checkbox from '../components/Switch';
 import TextInput from '../components/TextInput';
 import ScrollContainer from '../components/ScrollContainer';
 import DateTimePicker from '../components/DateTimePicker';
-import {theme} from '../core/theme';
-import {Navigation} from '../types';
-import {Validate} from '../core/utils';
+import { theme } from '../core/theme';
+import { Navigation } from '../types';
+import { Validate } from '../core/utils';
 import { ProgressSteps, ProgressStep } from 'react-native-progress-steps';
 import Paragraph from "../components/Paragraph";
+import RNPickerSelect from 'react-native-picker-select';
+import { UtilService } from '../clients/util/UtilService';
+
 
 type Props = {
     navigation: Navigation;
@@ -24,9 +27,41 @@ const RegisterScreen = ({navigation}: Props) => {
     const [email, setEmail] = useState({value: '', error: ''});
     const [password, setPassword] = useState({value: '', error: ''});
     const [isParamedic, setParamedic] = useState(false);
+    const [nationality, setNationality] = useState('');
+    const [region, setRegion] = useState('');
+    const [commune, setCommune] = useState('');
+    const [address, setAddress] = useState('');
+
+
+    const [nationalities, setNationalities] = useState([{value: null, label: ''}]);
+    const [regions, setRegions] = useState([{value: null, label: ''}]);
+    const [communes, setCommunes] = useState([{value: null, label: ''}]);
+
     let inputs = {};
 
+    useEffect(() => {
+        const getNationality = () => {
+            UtilService.getNationalities(setNationalities);
+        }
+
+        const getRegions = () => {
+            UtilService.getRegions(setRegions);
+        }
+
+
+        getNationality();
+        getRegions();
+
+        console.log(nationalities);
+
+    }, [])
+
     const _handleRutInput = (rutInput: string) => Validate.rut(rutInput, setRut);
+
+    const _handleRegionSelect = (regionId: string) => {
+        setRegion(regionId);
+        UtilService.getCommunes(regionId, setCommunes);
+    };
 
     const _onSignUpPressed = () => {
         const nameError = Validate.name(name.value);
@@ -75,7 +110,7 @@ const RegisterScreen = ({navigation}: Props) => {
                 <View>
                     <ProgressSteps {...progressStepsProperties}>
 
-                        <ProgressStep scrollable={false} label="Antecedentes Personales" {...progressStepDefaultProps} errors>
+                        <ProgressStep scrollable={false} label="Antecedentes Personales" {...progressStepDefaultProps}>
                                 <Paragraph>Cuentanos sobre ti...</Paragraph>
                                 <TextInput
                                     label="Nombre"
@@ -93,7 +128,7 @@ const RegisterScreen = ({navigation}: Props) => {
                                     reference={inputs}
                                     returnKeyType="next"
                                     value={lastName.value}
-                                    onChangeText={text => setLastName(...lastName, {value: text, error: ''})}
+                                    onChangeText={text => setLastName({value: text, error: ''})}
                                     error={lastName.error}
                                     errorText={lastName.error}
                                     textStyle={styles.input}
@@ -126,9 +161,45 @@ const RegisterScreen = ({navigation}: Props) => {
                         </ProgressStep>
 
                         <ProgressStep label="Ubicación" {...progressStepDefaultProps}>
-                            <View style={{ alignItems: 'center' }}>
-                                <Text>This is the content within step 2!</Text>
-                            </View>
+                            <RNPickerSelect
+                                placeholder={{
+                                    label: 'Selecciona tu nacionalidad...',
+                                    value: null,
+                                    color: '#9EA0A4',
+                                }}
+                                onValueChange={setNationality}
+                                items={nationalities}
+                            />
+
+                            <RNPickerSelect
+                                placeholder={{
+                                    label: 'Selecciona tu región...',
+                                    value: null,
+                                    color: '#9EA0A4',
+                                }}
+                                onValueChange={(value) => _handleRegionSelect(value)}
+                                items={regions}
+                            />
+
+                            <RNPickerSelect
+                                placeholder={{
+                                    label: 'Selecciona tu comuna...',
+                                    value: null,
+                                    color: '#9EA0A4',
+                                }}
+                                onValueChange={setCommune}
+                                items={communes}
+                            />
+
+                            <TextInput
+                                label="Dirección"
+                                reference={inputs}
+                                returnKeyType="next"
+                                value={address}
+                                onChangeText={setAddress}
+                                textStyle={styles.input}
+                            />
+
                         </ProgressStep>
 
                         <ProgressStep onNext={() => {

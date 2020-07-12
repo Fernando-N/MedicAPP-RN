@@ -1,11 +1,14 @@
 import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
 import { Provider } from 'react-native-paper';
-import Main from './src';
 import { theme } from './src/core/theme';
+import Main from './src';
 
 const App = () => (
     <Provider theme={theme}>
-      <Main />
+        <NavigationContainer>
+            <Main />
+        </NavigationContainer>
     </Provider>
 );
 

@@ -15,10 +15,11 @@ type Props = {
     navigation: Navigation;
 };
 
-const LoginScreen = ({navigation: {dispatch, navigate}}: Props) => {
-    const [email, setEmail] = useState({value: '', error: ''});
-    const [password, setPassword] = useState({value: '', error: ''});
+const LoginScreen = ({navigation}: Props) => {
+    const [email, setEmail] = useState({value: 'admin@test.com', error: ''});
+    const [password, setPassword] = useState({value: 'test', error: ''});
     const [buttonDisabled, setButtonDisabled] = useState(false);
+    let inputs = {};
 
     const _onLoginPressed = async () => {
         setButtonDisabled(true);
@@ -41,10 +42,8 @@ const LoginScreen = ({navigation: {dispatch, navigate}}: Props) => {
             return;
         }
 
-        dispatch({
-            key: 'Dashboard',
-            type: 'resetStack',
-            routeName: 'Dashboard'
+        navigation.reset({
+            routes: [{name: 'AuthNavigator'}]
         });
     };
 
@@ -66,10 +65,12 @@ const LoginScreen = ({navigation: {dispatch, navigate}}: Props) => {
                     autoCompleteType="email"
                     textContentType="emailAddress"
                     keyboardType="email-address"
+                    onSubmitEditing={() => inputs['Contraseña'].focus()}
                 />
 
                 <TextInput
                     label="Contraseña"
+                    reference={inputs}
                     returnKeyType="done"
                     value={password.value}
                     onChangeText={text => setPassword({value: text, error: ''})}
@@ -80,7 +81,7 @@ const LoginScreen = ({navigation: {dispatch, navigate}}: Props) => {
 
                 <View style={styles.forgotPassword}>
                     <TouchableOpacity
-                        onPress={() => navigate('ForgotPasswordScreen')}
+                        onPress={() => navigation.navigate('ForgotPasswordScreen')}
                     >
                         <Text style={styles.label}>¿Olvidaste tu contraseña?</Text>
                     </TouchableOpacity>
@@ -92,7 +93,7 @@ const LoginScreen = ({navigation: {dispatch, navigate}}: Props) => {
 
                 <View style={styles.row}>
                     <Text style={styles.label}>¿Aún no tienes cuenta? </Text>
-                    <TouchableOpacity onPress={() => navigate('RegisterScreen')}>
+                    <TouchableOpacity onPress={() => navigation.navigate('RegisterScreen')}>
                         <Text style={styles.link}>Registrate</Text>
                     </TouchableOpacity>
                 </View>
