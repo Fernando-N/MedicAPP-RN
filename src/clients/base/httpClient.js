@@ -8,40 +8,54 @@ const readUrl = (url = '') =>
     ? url
     : `${urlBase}/${url}`;
 
-const get = (url = '', headers = {}) =>
-  axios.get(readUrl(url), {
+const get = (url = '', headers = {}) => {
+
+    console.log(`[HttpClient] GET REQUEST: ${readUrl(url)} | Headers: ${headers}`)
+
+  return axios.get(readUrl(url), {
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
       ...headers,
     },
-  });
+  })
+};
 
-const post = (url = '', body = {}, headers = {}) =>
-  axios.post(readUrl(url), qs.stringify(body), {
-    headers: {
-      Accept: 'application/json',
-      ...headers,
-    }
-  });
+const post = (url = '', body = {}, headers = {}) => {
+    console.log(`[HttpClient] POST REQUEST: ${readUrl(url)} | Body ${body} | Headers: ${headers}`)
 
-const put = (url = '', body = {}, headers = {}) =>
-  axios.put(readUrl(url), body, {
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-      ...headers,
-    },
-  });
+    return axios.post(readUrl(url), qs.stringify(body), {
+        headers: {
+            Accept: 'application/json',
+            ...headers,
+        }
+    })
+};
 
-const del = (url = '', headers = {}) =>
-  axios.delete(readUrl(url), {
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-      ...headers,
-    },
-  });
+const put = (url = '', body = {}, headers = {}) => {
+    console.log(`[HttpClient] PUT REQUEST: ${readUrl(url)} | Body ${body} | Headers: ${headers}`)
+
+    return axios.put(readUrl(url), body, {
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            ...headers,
+        },
+    });
+
+}
+
+const del = (url = '', headers = {}) => {
+    console.log(`[HttpClient] DELETE REQUEST: ${readUrl(url)} | Headers: ${headers}`)
+
+    return axios.delete(readUrl(url), {
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            ...headers,
+        },
+    });
+}
 
 export default {
   get,

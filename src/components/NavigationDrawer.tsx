@@ -49,7 +49,7 @@ const NavigationDrawer = ({props}: Props) => {
                             <MaterialCommunityIcons name="message-text-outline" color={color} size={size}/>
                         )}
                         label="Mensajes"
-                        onPress={() => navigation.navigate('MessageScreen')}
+                        onPress={() => navigation.navigate('MessagesScreen')}
                     />
                     <DrawerItem
                         icon={({color, size}) => (

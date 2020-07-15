@@ -10,6 +10,7 @@ import {
     RegisterScreen,
     ForgotPasswordScreen,
     Dashboard,
+    MessagesScreen,
     MessageScreen,
 } from './screens';
 import ProfileScreen from "./screens/ProfileScreen";
@@ -38,8 +39,9 @@ const AuthNavigator = (): React.ReactElement => (
     <Drawer.Navigator drawerContent={(navigation) => <NavigationDrawer navigation={navigation} />}>
         <Drawer.Screen name={'DashboardScreen'} component={Dashboard} />
         <Drawer.Screen name={'ProfileScreen'} component={ProfileScreen} />
-        <Drawer.Screen name={'MessageScreen'} component={MessageScreen} />
-        <Drawer.Screen name={'ParamedicsScreen'} component={ParamedicsScreen} />
+        <Drawer.Screen name={'MessagesScreen'} component={MessagesScreen} options={{unmountOnBlur: true}} />
+        <Drawer.Screen name={'MessageScreen'} component={MessageScreen} options={{unmountOnBlur: true}} />
+        <Drawer.Screen name={'ParamedicsScreen'} component={ParamedicsScreen} options={{unmountOnBlur: true}} />
     </Drawer.Navigator>
 );
 

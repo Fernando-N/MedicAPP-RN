@@ -5,21 +5,11 @@ import qs from 'querystring';
 const jwt_decode = require('jwt-decode');
 
 const login = async (email, password) => {
-    const endpoint = 'auth/login';
     const appUserB64 = base64.encode('medicapp:12345');
+    const body = {username: email, password: password, grant_type: 'password'}
+    const headers = {Authorization: `Basic ${appUserB64}`, 'Content-Type': 'application/x-www-form-urlencoded'};
 
-    const body = {
-        username: email,
-        password: password,
-        grant_type: 'password',
-    }
-
-    const headers = {
-        Authorization: `Basic ${appUserB64}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-    };
-
-    return await httpClient.post(endpoint, body, headers)
+    return await httpClient.post('auth/login', body, headers)
         .then(response => {
             AsyncStorage.setItem('userInfo', qs.stringify(response.data));
             return {success: true, error: ''};
@@ -35,14 +25,7 @@ const login = async (email, password) => {
 }
 
 const forgotPassword = (email: string) => {
-    const endpoint = 'auth/forgot';
-
-    const headers = {
-        'email': email,
-        'Content-Type': 'application/x-www-form-urlencoded',
-    };
-
-    httpClient.post(endpoint, headers);
+    httpClient.post('auth/forgot', {'email': email, 'Content-Type': 'application/x-www-form-urlencoded'});
 }
 
 const logout = async () => {
@@ -51,21 +34,46 @@ const logout = async () => {
 
 const getToken = async () => {
     const res = qs.parse(await AsyncStorage.getItem('userInfo'));
-    return res.access_token;
+    return res.access_token ? res.access_token : undefined;
 }
 
 const isLoggedIn = (navigation) => {
-    AsyncStorage.getItem('userInfo', function (err, value) {
-        navigation.reset({
-            routes: [{name: !!value ? 'AuthNavigator' : 'NoAuthNavigator'}]
-        });
+    AsyncStorage.getItem('userInfo',  (err, value) => {
+
+        if (value) {
+            const tokenDecrypt = jwt_decode(value);
+            console.log(tokenDecrypt)
+            const tokenExpired = isTokenExpired(tokenDecrypt)
+
+            navigation.reset({
+                routes: [{name: !tokenExpired ? 'AuthNavigator' : 'NoAuthNavigator'}]
+            });
+        }else {
+            navigation.reset({
+                routes: [{name: 'NoAuthNavigator'}]
+            });
+        }
     });
+}
+
+const isTokenExpired = (token) => {
+    if (token) {
+        const expiry = token.exp;
+        const now = new Date();
+        return now.getTime() > expiry * 1000;
+    }
+    return false;
 }
 
 const getUserName = async (setName) => {
     const token = await getToken();
     const tokenDecrypt = jwt_decode(token);
     setName(tokenDecrypt.FIRST_NAME + ' ' + tokenDecrypt.LAST_NAME);
+}
+
+const getUserId = async () => {
+    const res = qs.parse(await AsyncStorage.getItem('userInfo'));
+    return res.USER_ID;
 }
 
 const getUserImage = async (id) => {
@@ -123,4 +131,5 @@ export const AuthService = {
     getUserName,
     getUserInfo,
     getToken,
+    getUserId,
 }

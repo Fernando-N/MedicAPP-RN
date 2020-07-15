@@ -1,96 +1,86 @@
-import React, {memo, useState, useEffect, useCallback, Component} from 'react';
-import {View} from 'react-native';
+import React, {useState, useEffect, useCallback} from 'react';
 import {Navigation} from '../types'
 import AppBarHeader from "../components/AppBarHeader";
-import {Text} from "react-native-paper";
 import Stomp from 'stompjs';
 import SockJS from 'sockjs-client';
-import Button from "../components/Button";
-import { GiftedChat } from 'react-native-gifted-chat'
-import qs from 'querystring';
+import {GiftedChat} from 'react-native-gifted-chat'
 import {AuthService} from '../clients/auth/AuthService';
+import {ChatService} from "../clients/chat/ChatService";
+import moment from "moment";
 
 type Props = {
+    route: any;
     navigation: Navigation;
 };
 
-const MessageScreen = ({navigation}: Props) => {
+const MessageScreen = ({route, navigation}: Props) => {
 
     const socket = new SockJS('http://192.168.1.97:8080/chat-websocket');
     const stompClient = Stomp.over(socket);
     const [userId, setUserId] = useState(undefined);
-    const [connected, setConnected] = useState(false);
-    const [writing, setWriting] = useState(false);
-    const [messages, setMessages] = useState([
-        {
-            _id: 1,
-            text: 'test',
-            createdAt: new Date(),
-            user: {
-                _id: 2,
-                name: 'Homero loco',
-                avatar: 'https://firebasestorage.googleapis.com/v0/b/medicapp-5b6fb.appspot.com/o/HomeroLoco.jpg?alt=media&token=8d276f91-76b8-41e2-8f77-d6777a42c6f6',
-            },
-        },
-    ]);
+    const [messages, setMessages] = useState([]);
 
     const callback = (e) => {
-        console.log("En el callback")
-        const msg = qs.parse(e.body);
-        console.log(msg)
+        const msg = JSON.parse(e.body)
         if (msg) {
+            msg.createdAt = moment(msg.createdAt);
             appendMsg(msg)
         }
     }
 
-    const onSendGifted = (messages) => {
-        console.log(messages)
-        sendMessage(messages)
+    const sendMessage = async (msg) => {
+        const token = await AuthService.getToken();
+        stompClient.send('/app/message', {Authorization: 'Bearer ' + token}, JSON.stringify({
+            ...msg[0],
+            to: route.params.userId
+        }));
+        msg[0].createdAt = new Date();
+        appendMsg(msg)
     }
 
-    const sendMessage = (msg) => {
-        console.log("En sendMessage")
-        console.log(qs.stringify(msg[0]))
-       // stompClient.send('/chat/messages', {}, qs.stringify(msg[0]));
-    }
-
-    const appendMsg = useCallback((messages = []) => {
-        setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
-    }, [])
+    const appendMsg = useCallback((message = []) => {
+        setMessages(previousMessages => GiftedChat.append(previousMessages, message))
+    }, []);
 
     useEffect(() => {
-
-        const initClient = () => {
-            const headers = {}//{Authorization: `Bearer ${jwt}`};
-
-            stompClient.connect(headers, () => {
+        console.log(route.params.name)
+        setMessages([]);
+        const initClient = async () => {
+            const id = await AuthService.getUserId();
+            setUserId(id)
+            stompClient.connect({}, () => {
                 stompClient.subscribe(
-                    `/chat/messages`, callback, headers,
+                    `/chat/messages/${id}/${route.params.userId}`, callback, {},
                 );
             });
 
             return () => stompClient && stompClient.disconnect();
-
-
         }
 
+        const getMessages = async () => {
+            const response = await ChatService.getAllTo(route.params.userId);
+            response.data.forEach(function (valor, indice, array) {
+                response.data[indice].createdAt = moment(response.data[indice].createdAt).format('YYYY-MM-DD HH:MM:SS');
+            });
+            setMessages(previousMessages => GiftedChat.append(previousMessages, response.data));
+        }
 
-        initClient()
+        initClient();
+        getMessages();
 
     }, [])
 
-
     return (
-<>
-    <AppBarHeader navigation={navigation} />
+        <>
+            <AppBarHeader navigation={navigation} title={route.params.name}/>
             <GiftedChat
                 messages={messages}
-                onSend={messages => sendMessage(messages)}
+                onSend={message => sendMessage(message)}
                 user={{
-                    _id: 1,
+                    _id: userId,
                 }}
             />
-            </>
+        </>
     )
 
 };

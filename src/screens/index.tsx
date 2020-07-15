@@ -4,4 +4,5 @@ export {default as LoginScreen} from './LoginScreen';
 export {default as RegisterScreen} from './RegisterScreen';
 export {default as ForgotPasswordScreen} from './ForgotPasswordScreen';
 export {default as Dashboard} from './Dashboard';
-export {default as MessageScreen} from './MessageScreen'
+export {default as MessagesScreen} from './MessagesScreen';
+export {default as MessageScreen} from './MessageScreen';
