@@ -114,18 +114,12 @@ const getUserInfo = (setUserInfo) => {
     AsyncStorage.getItem('userInfo', function (err, value) {
         const tokenDecrypt = jwt_decode(value);
 
-        const headers = {
-            Authorization: `Bearer ${tokenDecrypt.access_token}`,
-        };
-        console.log(`user/profile-image/${tokenDecrypt.USER_ID}`)
-
         httpClient.get(`user/profile-image/${tokenDecrypt.USER_ID}`)
             .then(response => {
-                 console.log(response.data);
+                console.log(response.data);
                 setUserInfo({name: `${tokenDecrypt.FIRST_NAME} ${tokenDecrypt.LAST_NAME}`, email: tokenDecrypt.EMAIL, photo: response.data.content})
             })
             .catch(error => {
-                console.log("ERRORR")
                 if (error.response && error.response.data.error_description === 'Bad credentials') {
                     return {success: false, error: '¡Usuario o contraseña incorrecto!'};
                 } else {

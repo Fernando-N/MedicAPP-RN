@@ -1,23 +1,23 @@
 import React, {memo, useState, useEffect} from 'react';
-import Background from '../components/Background';
-import Logo from '../components/Logo';
-import Header from '../components/Header';
-import Paragraph from '../components/Paragraph';
-import Button from '../components/Button';
-import {Navigation} from '../types';
-import {AuthService} from '../clients/auth/AuthService';
-import AppBarHeader from "../components/AppBarHeader";
+import Background from '../../components/Background';
+import Logo from '../../components/Logo';
+import Header from '../../components/Header';
+import Paragraph from '../../components/Paragraph';
+import Button from '../../components/Button';
+import {Navigation} from "../../models/";
+import {AuthService} from '../../clients/auth/AuthService';
+import AppBarHeader from "../../components/AppBarHeader";
 
 type Props = {
     navigation: Navigation;
 };
 
 const Dashboard = ({navigation}: Props) => {
-    const [name, setName] = useState('');
+    const [name, setName] = useState(undefined);
 
     useEffect(() => {
-        AuthService.getUserName(setName).catch(err => console.log(err));
-    });
+        AuthService.getUserName(setName);
+    }, []);
 
     const _onLogoutPress = async () => {
         await AuthService.logout();

@@ -10,7 +10,7 @@ const readUrl = (url = '') =>
 
 const get = (url = '', headers = {}) => {
 
-    console.log(`[HttpClient] GET REQUEST: ${readUrl(url)} | Headers: ${headers}`)
+    console.log(`[HttpClient] GET REQUEST: ${readUrl(url)} | Headers: [${qs.stringify(headers)}]`)
 
   return axios.get(readUrl(url), {
     headers: {
@@ -22,7 +22,7 @@ const get = (url = '', headers = {}) => {
 };
 
 const post = (url = '', body = {}, headers = {}) => {
-    console.log(`[HttpClient] POST REQUEST: ${readUrl(url)} | Body ${body} | Headers: ${headers}`)
+    console.log(`[HttpClient] POST REQUEST: ${readUrl(url)} | Body [${qs.stringify(body)}] | Headers: [${qs.stringify(headers)}]`)
 
     return axios.post(readUrl(url), qs.stringify(body), {
         headers: {
@@ -33,7 +33,7 @@ const post = (url = '', body = {}, headers = {}) => {
 };
 
 const put = (url = '', body = {}, headers = {}) => {
-    console.log(`[HttpClient] PUT REQUEST: ${readUrl(url)} | Body ${body} | Headers: ${headers}`)
+    console.log(`[HttpClient] PUT REQUEST: ${readUrl(url)} | Body [${qs.stringify(body)}] | Headers: [${qs.stringify(headers)}]`)
 
     return axios.put(readUrl(url), body, {
         headers: {
@@ -46,7 +46,7 @@ const put = (url = '', body = {}, headers = {}) => {
 }
 
 const del = (url = '', headers = {}) => {
-    console.log(`[HttpClient] DELETE REQUEST: ${readUrl(url)} | Headers: ${headers}`)
+    console.log(`[HttpClient] DELETE REQUEST: ${readUrl(url)} | Headers: [${qs.stringify(headers)}]`)
 
     return axios.delete(readUrl(url), {
         headers: {

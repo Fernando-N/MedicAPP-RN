@@ -1,13 +1,12 @@
 import React, {memo, useState, useEffect} from 'react';
 import {StyleSheet, Text, View, Alert, Keyboard, Image} from 'react-native';
 import {Card, TouchableRipple} from 'react-native-paper';
-import Background from "../components/Background";
-import ScrollContainer from '../components/ScrollContainer';
-import {Navigation} from '../types';
-import {FlatList, TouchableHighlight} from "react-native-gesture-handler";
-import AppBarHeader from "../components/AppBarHeader";
-import StarIndicator from "../components/StarIndicator";
-import {ParamedicService} from '../clients/paramedic/ParamedicService';
+import {Navigation} from '../../models/';
+import {FlatList} from "react-native-gesture-handler";
+import AppBarHeader from "../../components/AppBarHeader";
+import LoadingState from "../../components/LoadingState";
+import {ParamedicService} from '../../clients/paramedic/ParamedicService';
+import Rating from "../../components/Rating";
 
 type Props = {
     navigation: Navigation;
@@ -15,16 +14,14 @@ type Props = {
 
 const ParamedicsScreen = ({navigation}: Props) => {
 
-    const [data, setData] = useState({});
+    const [data, setData] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-
-        console.log('en useEffect')
-
         const getParamedics = async () => {
             const response = await ParamedicService.getAll();
             setData(response.data);
-            console.log(response.data)
+            setIsLoading(false)
         }
 
         getParamedics();
@@ -46,21 +43,23 @@ const ParamedicsScreen = ({navigation}: Props) => {
 
     const renderParamedic = (paramedic) => (
         <Card style={styles.myCard}>
-            <TouchableRipple
-                onPress={() => console.log('Pressed ' + paramedic.rut)}
-                rippleColor="rgba(0, 0, 0, .32)"
+            <TouchableRipple rippleColor="rgba(0, 0, 0, .32)"
+                             onPress={() => navigation.navigate('ProfileScreen', {userId: paramedic.key})}
             >
-                <View style={styles.cardView}><Image
-                    style={{width: 60, height: 60, borderRadius: 30}}
-                    source={{uri: paramedic.profileImage}}/>
+                <View style={styles.cardView}>
+                    <Image style={{width: 75, height: 75, borderRadius: 100}} source={{uri: paramedic.profileImage}}/>
+
                     <View style={{marginLeft: 10}}>
-                        <Text style={styles.text}>{paramedic.firstName + ' ' + paramedic.lastName}</Text>
-                        <StarIndicator quantity={4} />
+                        <Text style={styles.text}>{`${paramedic.firstName} ${paramedic.lastName}`}</Text>
+                        <Text style={styles.text2}>{`${paramedic.region.label} - ${paramedic.commune.label}`}</Text>
+                        <Rating rating={4} size={25} />
                     </View>
                 </View>
             </TouchableRipple>
         </Card>
     );
+
+    if (isLoading) return <LoadingState />;
 
     return (
         <>
@@ -68,10 +67,8 @@ const ParamedicsScreen = ({navigation}: Props) => {
             <View>
                 <FlatList
                     data={data}
-                    renderItem={({item}) => {
-                        return renderParamedic(item)
-                    }}
-                    keyExtractor={(item) => `${item.id}`}
+                    renderItem={({item}) => (renderParamedic(item))}
+                    keyExtractor={(item) => item.key}
                 />
             </View>
         </>

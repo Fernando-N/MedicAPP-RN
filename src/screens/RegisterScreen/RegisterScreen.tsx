@@ -1,17 +1,17 @@
 import React, { memo, useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Alert, Keyboard } from 'react-native';
-import Background from "../components/Background";
-import Checkbox from '../components/Switch';
-import TextInput from '../components/TextInput';
-import ScrollContainer from '../components/ScrollContainer';
-import DateTimePicker from '../components/DateTimePicker';
-import { theme } from '../core/theme';
-import { Navigation } from '../types';
-import { Validate } from '../core/utils';
+import Background from "../../components/Background";
+import Checkbox from '../../components/Switch';
+import TextInput from '../../components/TextInput';
+import ScrollContainer from '../../components/ScrollContainer';
+import DateTimePicker from '../../components/DateTimePicker';
+import { theme } from '../../core/theme';
+import { Navigation } from '../../models/';
+import { Validate } from '../../core/utils';
 import { ProgressSteps, ProgressStep } from 'react-native-progress-steps';
-import Paragraph from "../components/Paragraph";
+import Paragraph from "../../components/Paragraph";
 import RNPickerSelect from 'react-native-picker-select';
-import { UtilService } from '../clients/util/UtilService';
+import { UtilService } from '../../clients/util/UtilService';
 
 
 type Props = {

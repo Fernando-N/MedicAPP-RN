@@ -1,14 +1,14 @@
 import React, {memo} from 'react';
-import {StyleSheet, TouchableWithoutFeedback, View} from 'react-native';
+import {TouchableWithoutFeedback, View} from 'react-native';
 import TextInput from "./TextInput";
 import moment from "moment";
 import 'moment/locale/es'
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 type Props = React.ComponentProps<typeof TextInput> & {isVisible?: boolean} & {mode?: string}
-    & {value?: {}} & {toggleDatePicker?: Function } & {onConfirm?: Function} ;
+    & {value?: {}} & {toggleDatePicker?: Function } & {onConfirm?: Function} & [] ;
 
-const DateTimePicker = ({textInputProps, isVisible, mode, value, toggleDatePicker, onConfirm}: Props) => (
+const DateTimePicker = ({isVisible, mode, value, toggleDatePicker, onConfirm, ...textInputProps}: Props) => (
     <>
         <TouchableWithoutFeedback onPress={toggleDatePicker}>
 
@@ -44,9 +44,5 @@ const DateTimePicker = ({textInputProps, isVisible, mode, value, toggleDatePicke
 
     </>
 );
-
-const styles = StyleSheet.create({
-
-});
 
 export default memo(DateTimePicker);

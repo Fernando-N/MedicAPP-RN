@@ -1,15 +1,15 @@
 import React, {memo, useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View, Alert} from 'react-native';
-import Background from '../components/Background';
-import Logo from '../components/Logo';
-import Header from '../components/Header';
-import Button from '../components/Button';
-import TextInput from '../components/TextInput';
-import ScrollContainer from '../components/ScrollContainer';
-import {theme} from '../core/theme';
-import {Navigation} from '../types';
-import {AuthService} from '../clients/auth/AuthService';
-import {Validate} from '../core/utils';
+import Background from '../../components/Background';
+import Logo from '../../components/Logo';
+import Header from '../../components/Header';
+import Button from '../../components/Button';
+import TextInput from '../../components/TextInput';
+import ScrollContainer from '../../components/ScrollContainer';
+import {theme} from '../../core/theme';
+import {Navigation} from '../../models/';
+import {AuthService} from '../../clients/auth/AuthService';
+import {Validate} from '../../core/utils';
 
 type Props = {
     navigation: Navigation;

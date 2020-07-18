@@ -1,8 +1,12 @@
+//Import de dependencias
 import AsyncStorage from '@react-native-community/async-storage';
 import httpClient from '../base/httpClient';
 import base64 from 'react-native-base64'
 import qs from 'querystring';
 const jwt_decode = require('jwt-decode');
+
+const prefixLogs = "[AuthService]";
+
 
 const login = async (email, password) => {
     const appUserB64 = base64.encode('medicapp:12345');
@@ -11,11 +15,12 @@ const login = async (email, password) => {
 
     return await httpClient.post('auth/login', body, headers)
         .then(response => {
+            console.log(`${prefixLogs} [login] - Obtuve respuesta => [${qs.stringify(response)}]`)
             AsyncStorage.setItem('userInfo', qs.stringify(response.data));
             return {success: true, error: ''};
         })
         .catch(error => {
-            console.log(error)
+            console.log(`${prefixLogs} [login] - Obtuve error => [${qs.stringify(error)}]`)
             if (error.response && error.response.data.error_description === 'Bad credentials') {
                 return {success: false, error: '¡Usuario o contraseña incorrecto!'};
             } else {
@@ -29,7 +34,7 @@ const forgotPassword = (email: string) => {
 }
 
 const logout = async () => {
-    await AsyncStorage.removeItem('userInfo').then(error => console.log(error));
+    await AsyncStorage.removeItem('userInfo').catch(error => console.log(`${prefixLogs} [logout] - Obtuve error => [${qs.stringify(error)}]`));
 }
 
 const getToken = async () => {
@@ -38,12 +43,14 @@ const getToken = async () => {
 }
 
 const isLoggedIn = (navigation) => {
-    AsyncStorage.getItem('userInfo',  (err, value) => {
+    AsyncStorage.getItem('userInfo').then((response) => {
 
-        if (value) {
-            const tokenDecrypt = jwt_decode(value);
+        if (response) {
+            const tokenDecrypt = jwt_decode(response);
             console.log(tokenDecrypt)
             const tokenExpired = isTokenExpired(tokenDecrypt)
+
+            console.log(`[AuthService] [isLoggedIn] - IsTokenExpired: ${tokenExpired}`)
 
             navigation.reset({
                 routes: [{name: !tokenExpired ? 'AuthNavigator' : 'NoAuthNavigator'}]
@@ -53,13 +60,21 @@ const isLoggedIn = (navigation) => {
                 routes: [{name: 'NoAuthNavigator'}]
             });
         }
-    });
+    })
+        .catch(error => {
+            console.log(`${prefixLogs} [isLogeddIn] - Obtuve error => [${qs.stringify(error)}]`)
+            navigation.reset({
+                routes: [{name: 'NoAuthNavigator'}]
+            });
+        });
 }
 
 const isTokenExpired = (token) => {
     if (token) {
         const expiry = token.exp;
+        console.log(`[AuthService] [isTokenExpired] - expiry: ${expiry}`)
         const now = new Date();
+        console.log(`[AuthService] [isTokenExpired] - now: ${now}`)
         return now.getTime() > expiry * 1000;
     }
     return false;
@@ -101,18 +116,19 @@ const getUserInfo = (setUserInfo) => {
     AsyncStorage.getItem('userInfo', function (err, value) {
         const tokenDecrypt = jwt_decode(value);
 
-        const headers = {
-            Authorization: `Bearer ${tokenDecrypt.access_token}`,
-        };
-        console.log(`user/profile-image/${tokenDecrypt.USER_ID}`)
-
         httpClient.get(`user/profile-image/${tokenDecrypt.USER_ID}`)
             .then(response => {
-                 console.log(response.data);
-                setUserInfo({name: `${tokenDecrypt.FIRST_NAME} ${tokenDecrypt.LAST_NAME}`, email: tokenDecrypt.EMAIL, photo: response.data.content})
+                console.log(`${prefixLogs} [getUserInfo] - Obtuve respuesta => [${qs.stringify(response)}]`)
+                setUserInfo(
+                    {
+                        userId: tokenDecrypt.USER_ID,
+                        name: `${tokenDecrypt.FIRST_NAME} ${tokenDecrypt.LAST_NAME}`,
+                        email: tokenDecrypt.EMAIL,
+                        photo: response.data.content
+                    })
             })
             .catch(error => {
-                console.log("ERRORR")
+                console.log(`${prefixLogs} [getUserInfo] - Obtuve error => [${qs.stringify(error)}]`)
                 if (error.response && error.response.data.error_description === 'Bad credentials') {
                     return {success: false, error: '¡Usuario o contraseña incorrecto!'};
                 } else {

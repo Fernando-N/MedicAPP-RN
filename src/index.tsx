@@ -12,9 +12,9 @@ import {
     Dashboard,
     MessagesScreen,
     MessageScreen,
+    ProfileScreen,
+    ParamedicsScreen,
 } from './screens';
-import ProfileScreen from "./screens/ProfileScreen";
-import ParamedicsScreen from "./screens/ParamedicsScreen";
 
 const navigationOptionsDefault = {
     headerStyle: {
@@ -37,9 +37,9 @@ const NoAuthNavigator = (): React.ReactElement => (
 
 const AuthNavigator = (): React.ReactElement => (
     <Drawer.Navigator drawerContent={(navigation) => <NavigationDrawer navigation={navigation} />}>
-        <Drawer.Screen name={'DashboardScreen'} component={Dashboard} />
-        <Drawer.Screen name={'ProfileScreen'} component={ProfileScreen} />
-        <Drawer.Screen name={'MessagesScreen'} component={MessagesScreen} options={{unmountOnBlur: true}} />
+        <Drawer.Screen name={'DashboardScreen'} component={Dashboard} options={{unmountOnBlur: true}} />
+        <Drawer.Screen name={'ProfileScreen'} component={ProfileScreen} options={{unmountOnBlur: true}} />
+        <Drawer.Screen name={'MessagesScreen'} component={MessagesScreen} />
         <Drawer.Screen name={'MessageScreen'} component={MessageScreen} options={{unmountOnBlur: true}} />
         <Drawer.Screen name={'ParamedicsScreen'} component={ParamedicsScreen} options={{unmountOnBlur: true}} />
     </Drawer.Navigator>

@@ -1,11 +1,11 @@
-import React, {useState, useEffect, useCallback} from 'react';
-import {Navigation} from '../types'
-import AppBarHeader from "../components/AppBarHeader";
+import React, {useState, useEffect, useCallback, memo} from 'react';
+import {Navigation} from '../../models/';
+import AppBarHeader from "../../components/AppBarHeader";
 import Stomp from 'stompjs';
 import SockJS from 'sockjs-client';
 import {GiftedChat} from 'react-native-gifted-chat'
-import {AuthService} from '../clients/auth/AuthService';
-import {ChatService} from "../clients/chat/ChatService";
+import {AuthService} from '../../clients/auth/AuthService';
+import {ChatService} from "../../clients/chat/ChatService";
 import moment from "moment";
 
 type Props = {
@@ -43,7 +43,6 @@ const MessageScreen = ({route, navigation}: Props) => {
     }, []);
 
     useEffect(() => {
-        console.log(route.params.name)
         setMessages([]);
         const initClient = async () => {
             const id = await AuthService.getUserId();
@@ -53,8 +52,6 @@ const MessageScreen = ({route, navigation}: Props) => {
                     `/chat/messages/${id}/${route.params.userId}`, callback, {},
                 );
             });
-
-            return () => stompClient && stompClient.disconnect();
         }
 
         const getMessages = async () => {
@@ -68,6 +65,8 @@ const MessageScreen = ({route, navigation}: Props) => {
         initClient();
         getMessages();
 
+        return () => stompClient && stompClient.disconnect();
+
     }, [])
 
     return (
@@ -76,6 +75,7 @@ const MessageScreen = ({route, navigation}: Props) => {
             <GiftedChat
                 messages={messages}
                 onSend={message => sendMessage(message)}
+                placeholder={'Escribe un mensaje...'}
                 user={{
                     _id: userId,
                 }}
@@ -85,4 +85,4 @@ const MessageScreen = ({route, navigation}: Props) => {
 
 };
 
-export default MessageScreen;
+export default memo(MessageScreen);

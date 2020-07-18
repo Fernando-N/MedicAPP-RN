@@ -1,6 +1,6 @@
 import React, {memo, useState, useEffect} from 'react';
 import { View, StyleSheet} from 'react-native';
-import {Navigation} from '../types';
+import {Navigation} from "../models/";
 import {Drawer, Avatar, Title, Caption, TouchableRipple, Switch, Text} from 'react-native-paper';
 import {DrawerContentScrollView, DrawerItem} from "@react-navigation/drawer";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -8,10 +8,10 @@ import {AuthService} from "../clients/auth/AuthService";
 import {avatarDefault} from "../constants/default";
 import { useNavigation } from '@react-navigation/native';
 
-type Props = { navigation : Navigation } & { props: {} };
+type Props = { navigation: Navigation } & { props?: {} };
 
 const NavigationDrawer = ({props}: Props) => {
-    const [userInfo, setUserInfo] = useState({name: '', email: '', photo: avatarDefault});
+    const [userInfo, setUserInfo] = useState({userId: '', name: '', email: '', photo: avatarDefault});
 
     useEffect(() => {
         AuthService.getUserInfo(setUserInfo);
@@ -42,7 +42,7 @@ const NavigationDrawer = ({props}: Props) => {
                             />
                         )}
                         label="Perfil"
-                        onPress={() => navigation.navigate('ProfileScreen')}
+                        onPress={() => navigation.navigate('ProfileScreen', {userId: userInfo.userId})}
                     />
                     <DrawerItem
                         icon={({color, size}) => (
@@ -66,7 +66,7 @@ const NavigationDrawer = ({props}: Props) => {
                     <DrawerItem
                         icon={({color, size}) => (
                             <MaterialCommunityIcons
-                                name="account-supervisor-circle"
+                                name="logout"
                                 color={color}
                                 size={size}
                             />
@@ -87,9 +87,11 @@ const styles = StyleSheet.create({
     },
     userInfoSection: {
         paddingLeft: 20,
+        marginTop: 20,
     },
     title: {
-        marginTop: 20,
+        marginTop: 10,
+        fontSize: 18,
         fontWeight: 'bold',
     },
     caption: {

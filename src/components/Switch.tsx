@@ -6,9 +6,7 @@ type Props = React.ComponentProps<typeof Switch>;
 
 const Checkbox = ({style, ...props}: Props) => (
     <Switch
-        style={[
-            style,
-        ]}
+        style={style}
         labelStyle={styles.text}
         {...props}
     />

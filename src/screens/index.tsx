@@ -1,8 +1,10 @@
 export {default as Init} from './Init';
-export {default as HomeScreen} from './HomeScreen';
-export {default as LoginScreen} from './LoginScreen';
-export {default as RegisterScreen} from './RegisterScreen';
-export {default as ForgotPasswordScreen} from './ForgotPasswordScreen';
-export {default as Dashboard} from './Dashboard';
-export {default as MessagesScreen} from './MessagesScreen';
-export {default as MessageScreen} from './MessageScreen';
+export {default as HomeScreen} from './HomeScreen/HomeScreen';
+export {default as LoginScreen} from './LoginScreen/LoginScreen';
+export {default as RegisterScreen} from './RegisterScreen/RegisterScreen';
+export {default as ForgotPasswordScreen} from './ForgotPasswordScreen/ForgotPasswordScreen';
+export {default as Dashboard} from './DashboardScreen/Dashboard';
+export {default as MessagesScreen} from './MessagesScreen/MessagesScreen';
+export {default as MessageScreen} from './MessagesScreen/MessageScreen';
+export {default as ParamedicsScreen} from './ParamedicsScreen/ParamedicsScreen';
+export {default as ProfileScreen} from './ProfileScreen/ProfileScreen';
