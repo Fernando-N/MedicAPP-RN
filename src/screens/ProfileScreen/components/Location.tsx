@@ -1,11 +1,7 @@
 import React, {memo} from 'react'
-import {StyleSheet,Text,View, Image} from 'react-native'
-import {Navigation} from '../../../models/';
-import LinearGradient from "react-native-linear-gradient";
-import {TouchableOpacity} from "react-native-gesture-handler";
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import {StyleSheet, Text, View, Image} from 'react-native'
 import Entypo from 'react-native-vector-icons/Entypo';
-import Feather from 'react-native-vector-icons/Feather';
+import {TouchableRipple} from "react-native-paper";
 
 type Props = {
     location: {
@@ -13,26 +9,29 @@ type Props = {
         address: string,
         commune: string,
         region: string,
-    }
+    },
+    onPress: any,
 };
 
-const Location = ({location}: Props) => {
+const Location = ({location, onPress}: Props) => {
 
     return (
-        <View style={styles.container}>
-            <View style={{ width: 75, height: 75 }}>
-                <Image
-                    source={require("../../../assets/images/location.png")}
-                    style={{ flex: 1, width: undefined }}
-                    resizeMode="center"
-                />
+        <TouchableRipple rippleColor="rgba(0, 0, 0, .32)" onPress={onPress}>
+            <View style={styles.container}>
+                <View style={{width: 75, height: 75}}>
+                    <Image
+                        source={require("../../../assets/images/location.png")}
+                        style={{flex: 1, width: undefined}}
+                        resizeMode="center"
+                    />
+                </View>
+                <View style={{flex: 1}}>
+                    <Text style={styles.location}>{`${location.region} - ${location.commune}`}</Text>
+                    <Text style={styles.distance}>{location.showAddress ? location.address : ''}</Text>
+                </View>
+                <Entypo name="chevron-right" size={24} color={'#666'}/>
             </View>
-            <View style={{ flex: 1 }}>
-                <Text style={styles.location}>{`${location.region} - ${location.commune}`}</Text>
-                <Text style={styles.distance}>{location.showAddress ? location.address : ''}</Text>
-            </View>
-            <Entypo name="chevron-right" size={24} color={'#666'} />
-        </View>
+        </TouchableRipple>
     )
 };
 

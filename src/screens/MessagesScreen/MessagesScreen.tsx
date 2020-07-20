@@ -9,6 +9,7 @@ import AppBarHeader from "../../components/AppBarHeader";
 import LoadingState from "../../components/LoadingState";
 import Stomp from 'stompjs';
 import SockJS from 'sockjs-client';
+import { host } from "../../core/environment";
 
 type Props = {
     navigation: Navigation;
@@ -16,7 +17,7 @@ type Props = {
 
 const MessagesScreen = ({navigation}: Props) => {
 
-    const socket = new SockJS('http://192.168.1.97:8080/chat-websocket');
+    const socket = new SockJS(`${host}/chat-websocket`);
     const stompClient = Stomp.over(socket);
     const [data, setData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -77,7 +78,7 @@ const MessagesScreen = ({navigation}: Props) => {
 
     return (
         <>
-            <AppBarHeader navigation={navigation} title={'Mensajes'} />
+            <AppBarHeader navigation={navigation} previous={true} title={'Mensajes'} />
             <View>
                 <FlatList
                     data={data}

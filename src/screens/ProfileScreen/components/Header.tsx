@@ -10,17 +10,14 @@ type Props = {
     navigation: Navigation,
     user: User,
     isMyProfile: boolean,
+    isParamedic: boolean,
+    stars: any,
+    onPressRating?: any,
 };
 
-const Header = ({navigation, user, isMyProfile}: Props) => {
+const Header = ({navigation, user, isMyProfile, isParamedic, stars, onPressRating}: Props) => {
 
     const _contact = () => {
-
-        if (isMyProfile) {
-            Alert.alert('Error', 'No puedes contactarte a ti mismo.');
-            return;
-        }
-
         navigation.navigate('MessageScreen', {
             userId: user.key,
             name: `${user.firstName} ${user.lastName}`
@@ -43,14 +40,19 @@ const Header = ({navigation, user, isMyProfile}: Props) => {
                 <View style={[styles.center, {marginVertical: 12}]}>
 
                     <Text style={styles.title}>{`${user.firstName} ${user.lastName}`}</Text>
-                    <View style={styles.imageContainer}>
-                        <Rating rating={4} size={32} />
-                    </View>
 
-                    <TouchableOpacity style={styles.follow} onPress={() => _contact()}>
-                        <Feather name="message-circle" size={20} color="rgba(255, 255, 255, 0.6)"/>
-                        <Text style={styles.followText}>Contactar</Text>
-                    </TouchableOpacity>
+                    {isParamedic &&
+                        <View style={styles.imageContainer}>
+                            <Rating rating={stars} size={32} onPress={onPressRating}/>
+                        </View>
+                    }
+
+                    {!isMyProfile &&
+                        <TouchableOpacity style={styles.follow} onPress={() => _contact()}>
+                            <Feather name="message-circle" size={20} color="rgba(255, 255, 255, 0.6)"/>
+                            <Text style={styles.followText}>Contactar</Text>
+                        </TouchableOpacity>
+                    }
 
                 </View>
             </View>

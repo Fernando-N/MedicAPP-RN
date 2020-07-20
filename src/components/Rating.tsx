@@ -4,10 +4,11 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 type Props = {
     rating: number,
-    size: number
+    size: number,
+    onPress?: Function
 };
 
-const Rating = ({rating, size}: Props) => {
+const Rating = ({rating, size, onPress}: Props) => {
 
     const animation = new Animated.Value(1);
 
@@ -54,6 +55,9 @@ const Rating = ({rating, size}: Props) => {
                 key={x}
                 onPress={() => {
                     rate(x), animate();
+                    if (onPress) {
+                        onPress();
+                    }
                 }}
             >
                 <Animated.View style={x <= rating ? animationStyle : ""}>

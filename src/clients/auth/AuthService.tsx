@@ -13,7 +13,7 @@ const login = async (email, password) => {
     const body = {username: email, password: password, grant_type: 'password'}
     const headers = {Authorization: `Basic ${appUserB64}`, 'Content-Type': 'application/x-www-form-urlencoded'};
 
-    return await httpClient.post('auth/login', body, headers)
+    return await httpClient.post('auth/login', qs.stringify(body), headers)
         .then(response => {
             console.log(`${prefixLogs} [login] - Obtuve respuesta => [${qs.stringify(response)}]`)
             AsyncStorage.setItem('userInfo', qs.stringify(response.data));

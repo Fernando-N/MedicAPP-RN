@@ -8,3 +8,8 @@ export {default as MessagesScreen} from './MessagesScreen/MessagesScreen';
 export {default as MessageScreen} from './MessagesScreen/MessageScreen';
 export {default as ParamedicsScreen} from './ParamedicsScreen/ParamedicsScreen';
 export {default as ProfileScreen} from './ProfileScreen/ProfileScreen';
+export {default as MapsScreen} from './MapsScreen/MapsScreen';
+export {default as FeedbacksScreen} from './FeedbacksScreen/FeedbacksScreen';
+export {default as EditProfileScreen} from './EditProfileScreen/EditProfileScreen';
+export {default as RateProfileScreen} from './RateProfileScreen/RateProfileScreen';
+export {default as ReportProfileScreen} from './ReportProfileScreen/ReportProfileScreen';

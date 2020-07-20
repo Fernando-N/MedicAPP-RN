@@ -9,6 +9,8 @@ import Stats from "./components/Stats";
 import Header from "./components/Header";
 import About from "./components/About";
 import Location from "./components/Location";
+import {ParamedicService} from "../../clients/paramedic/ParamedicService";
+import {othersMenu, ownMenu} from "./menus";
 
 type Props = {
     route: any;
@@ -19,6 +21,7 @@ const ProfileScreen = ({navigation, route}: Props) => {
 
     const [isLoading, setIsLoading] = useState(true);
     const [data, setData] = useState(undefined);
+    const [stats, setStats] = useState({valuations: 0, contacts: 0, rating: 0});
     const [isMyProfile, setIsMyProfile] = useState(false);
 
     const _getProfile = async () => {
@@ -31,41 +34,92 @@ const ProfileScreen = ({navigation, route}: Props) => {
         setIsLoading(false);
     }
 
+    const ownMenuFunctions = [
+        {
+            onPress: () => navigation.navigate('EditProfileScreen')
+        }
+    ]
+
+    const othersMenuFunctions = [
+        {
+            onPress: () => navigation.navigate('ReportProfileScreen', {
+                name: `${data.firstName} ${data.lastName}`,
+                userId: route.params.userId
+            })
+        }
+    ]
+
+    const _getStats = async () => {
+        const response = await ParamedicService.getStats(route.params.userId);
+
+        if (response.error) {
+            setStats({rating: 0, contacts: 0, valuations: 0})
+            return;
+        }
+
+        setStats(response.data);
+    }
+
+    const _goToMaps = () => {
+        if (data.showAddress) {
+            navigation.navigate('MapsScreen', {
+                name: `${data.firstName} ${data.lastName}`,
+                address: data.address,
+                commune: data.commune.label,
+                region: data.region.label
+            });
+        }
+    }
+
+    const _goToFeedback = () => {
+        navigation.navigate('FeedbacksScreen', {
+            name: `${data.firstName} ${data.lastName}`,
+            userId: route.params.userId
+        });
+    }
+
     useEffect(() => {
         _getProfile();
+        setTimeout(() => {
+            _getStats();
+        }, 100)
+
     }, [])
 
     if (isLoading) return <LoadingState/>;
 
-    const menuItems = [
-        {
-            icon: 'icon',
-            title: 'Test',
-            onPress: () => {console.log('works!')}
-        },
-        {
-            icon: 'edit',
-            title: 'Funciona2',
-            onPress: () => {console.log('Works2!')}
-        }
-    ]
-
     return (
         <>
-            <AppBarHeader navigation={navigation} previous={true} title={`Perfil de ${data.firstName} ${data.lastName}`}
-                          showDots={true}
-                          menu={menuItems}
+            <AppBarHeader
+                navigation={navigation}
+                previous={true}
+                title={`Perfil de ${data.firstName} ${data.lastName}`}
+                showDots={true}
+                menu={isMyProfile ? ownMenu : othersMenu}
+                menuFunctions={isMyProfile ? ownMenuFunctions : othersMenuFunctions}
             />
+
             <ScrollView style={styles.container}>
-                <Header user={data} isMyProfile={isMyProfile} navigation={navigation} />
-                <Stats />
+
+                <Header
+                    user={data}
+                    onPressRating={_goToFeedback}
+                    isMyProfile={isMyProfile}
+                    isParamedic={data.paramedic}
+                    stars={stats.rating}
+                    navigation={navigation} />
+
+                {data.paramedic && <Stats stats={stats} />}
+
                 {data.aboutMe && <About aboutMe={data.aboutMe}/> }
+
                 <Location location={{
-                    showAddress: true,
+                    showAddress: data.showAddress,
                     address: data.address,
                     commune: data.commune.label,
                     region: data.region.label
-                }} />
+                }} onPress={_goToMaps} />
+
             </ScrollView>
         </>
     )

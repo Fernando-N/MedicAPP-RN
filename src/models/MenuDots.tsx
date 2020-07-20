@@ -1,7 +1,7 @@
 type MenuDots = {
     icon: string,
     title: string,
-    onPress: () => void
+    onPress: any
 }
 
 

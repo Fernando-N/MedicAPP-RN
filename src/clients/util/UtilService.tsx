@@ -1,37 +1,6 @@
-import AsyncStorage from '@react-native-community/async-storage';
 import httpClient from '../base/httpClient';
-import base64 from 'react-native-base64'
-import qs from 'querystring';
-const jwt_decode = require('jwt-decode');
-
-const login = async (email, password) => {
-    const endpoint = 'auth/login';
-    const appUserB64 = base64.encode('medicapp:12345');
-
-    const body = {
-        username: email,
-        password: password,
-        grant_type: 'password',
-    }
-
-    const headers = {
-        Authorization: `Basic ${appUserB64}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-    };
-
-    return await httpClient.post(endpoint, body, headers)
-        .then(response => {
-            AsyncStorage.setItem('userInfo', qs.stringify(response.data));
-            return {success: true, error: ''};
-        })
-        .catch(error => {
-            if (error.response && error.response.data.error_description === 'Bad credentials') {
-                return {success: false, error: '¡Usuario o contraseña incorrecto!'};
-            } else {
-                return {success: false, error: 'Estamos sufriento un error en nuestro servicio, porfavor reintente mas tarde.'};
-            }
-        });
-}
+import {AuthService} from "../auth/AuthService";
+const qs = require('querystring')
 
 const getNationalities = (setNationalities) => {
     httpClient.get('nationality')
@@ -65,73 +34,24 @@ const getCommunes = (id: string, setCommunes) => {
             setCommunes([{value: null, label: ''}]);
         })
 }
+const getLogitudeAndLatitude = async (address: string) => {
+    const token = await AuthService.getToken();
 
-const logout = async () => {
-    await AsyncStorage.removeItem('userInfo').then(error => console.log(error));
-}
+    const headers = {Authorization: `Bearer ${token}`};
 
-const getToken = async () => {
-    const res = qs.parse(await AsyncStorage.getItem('userInfo'));
-    return res.access_token;
-}
-
-const isLoggedIn = (navigation) => {
-    AsyncStorage.getItem('userInfo', function (err, value) {
-        navigation.reset({
-            routes: [{name: !!value ? 'AuthNavigator' : 'NoAuthNavigator'}]
-        });
-    });
-}
-
-const getUserName = async (setName) => {
-    const token = await getToken();
-    const tokenDecrypt = jwt_decode(token);
-    setName(tokenDecrypt.FIRST_NAME + ' ' + tokenDecrypt.LAST_NAME);
-}
-
-const getUserImage = async (id) => {
-
-    const token = await getToken();
-
-    const headers = {
-        Authorization: `Bearer ${token}`,
-    };
-
-    return await httpClient.get(`user/profile-image/${id}`, headers)
+    return await httpClient.get(`location/${encodeURI(address.replace('#', ''))}/`, headers)
         .then(response => {
-            return response.data.content;
+            return {error: false, data: response.data};
         })
         .catch(error => {
-            if (error.response && error.response.data.error_description === 'Bad credentials') {
-                return {success: false, error: '¡Usuario o contraseña incorrecto!'};
-            } else {
-                return {success: false, error: 'Estamos sufriento un error en nuestro servicio, porfavor reintente mas tarde.'};
-            }
-        });
-}
-
-const getUserInfo = (setUserInfo) => {
-    AsyncStorage.getItem('userInfo', function (err, value) {
-        const tokenDecrypt = jwt_decode(value);
-
-        httpClient.get(`user/profile-image/${tokenDecrypt.USER_ID}`)
-            .then(response => {
-                console.log(response.data);
-                setUserInfo({name: `${tokenDecrypt.FIRST_NAME} ${tokenDecrypt.LAST_NAME}`, email: tokenDecrypt.EMAIL, photo: response.data.content})
-            })
-            .catch(error => {
-                if (error.response && error.response.data.error_description === 'Bad credentials') {
-                    return {success: false, error: '¡Usuario o contraseña incorrecto!'};
-                } else {
-                    return {success: false, error: 'Estamos sufriento un error en nuestro servicio, porfavor reintente mas tarde.'};
-                }
-            });
-
-    });
+            console.error(error);
+            return {error: true, data: undefined};
+        })
 }
 
 export const UtilService = {
     getNationalities,
     getRegions,
-    getCommunes
+    getCommunes,
+    getLogitudeAndLatitude
 }

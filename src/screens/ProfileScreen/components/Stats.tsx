@@ -1,26 +1,26 @@
 import React, {memo} from 'react'
 import {StyleSheet, Text, View} from 'react-native'
-import {Navigation} from '../../../models/';
 
 type Props = {
-    route: any;
-    navigation: Navigation;
+    stats: {
+        valuations: any,
+        contacts: any,
+        rating: any
+    },
 };
 
-const Stats = () => (
+const Stats = ({stats}: Props) => (
     <View style={styles.container}>
         <View style={styles.statContainer}>
-            <Text style={styles.statNumber}>133</Text>
+            <Text style={styles.statNumber}>{stats.valuations}</Text>
             <Text style={styles.stat}>Valoraciones</Text>
         </View>
-
         <View style={[styles.statContainer, styles.divider]}>
-            <Text style={styles.statNumber}>1.2K</Text>
+            <Text style={styles.statNumber}>{stats.contacts}</Text>
             <Text style={styles.stat}>Contactos</Text>
         </View>
-
         <View style={styles.statContainer}>
-            <Text style={styles.statNumber}>5.0</Text>
+            <Text style={styles.statNumber}>{stats.rating}</Text>
             <Text style={styles.stat}>Puntuación</Text>
         </View>
     </View>

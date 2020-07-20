@@ -10,7 +10,10 @@
       android:roundIcon="@mipmap/ic_launcher_round"
       android:allowBackup="false"
       android:theme="@style/AppTheme">
-      <activity
+        <meta-data
+                android:name="com.google.android.geo.API_KEY"
+                android:value="AIzaSyBC_WwFpDvbIOKfr72wOL9Z4Mn2EPgU6EY"/>
+        <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
         android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"

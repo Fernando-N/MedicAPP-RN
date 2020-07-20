@@ -1,6 +1,5 @@
 import React, {memo, useState, useEffect} from 'react';
 import { View, StyleSheet} from 'react-native';
-import {Navigation} from "../models/";
 import {Drawer, Avatar, Title, Caption, TouchableRipple, Switch, Text} from 'react-native-paper';
 import {DrawerContentScrollView, DrawerItem} from "@react-navigation/drawer";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -8,7 +7,10 @@ import {AuthService} from "../clients/auth/AuthService";
 import {avatarDefault} from "../constants/default";
 import { useNavigation } from '@react-navigation/native';
 
-type Props = { navigation: Navigation } & { props?: {} };
+type Props = {
+    navigation: any,
+    props?: any
+};
 
 const NavigationDrawer = ({props}: Props) => {
     const [userInfo, setUserInfo] = useState({userId: '', name: '', email: '', photo: avatarDefault});

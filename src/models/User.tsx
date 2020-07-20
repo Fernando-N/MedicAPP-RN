@@ -1,24 +1,26 @@
 type User = {
-    key: string,
-    email: string,
-    rut: string,
-    firstName: string,
-    lastName: string,
-    birthDay: string,
-    commune: {
-        value: string,
-        label: string
+    key?: string,
+    email?: string,
+    rut?: string,
+    firstName?: string,
+    lastName?: string,
+    birthDay?: string,
+    commune?: {
+        value?: string,
+        label?: string
     },
-    region: {
-        value: string,
-        label: string
+    region?: {
+        value?: string,
+        label?: string
     },
-    address: string,
-    profileImage: string,
-    roleEntities: [{
-        name: string
+    aboutMe?: string,
+    showAddress?: boolean,
+    address?: string,
+    profileImage?: string,
+    roleEntities?: [{
+        name?: string
     }],
-    paramedic: boolean,
+    paramedic?: boolean,
 }
 
 

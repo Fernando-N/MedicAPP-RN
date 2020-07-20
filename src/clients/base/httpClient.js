@@ -1,32 +1,32 @@
 import axios from 'axios';
 const qs = require('querystring')
-
-const urlBase = 'http://192.168.1.97:8080';
+import { host } from "../../core/environment";
 
 const readUrl = (url = '') =>
   url.startsWith('http://') || url.startsWith('https://')
     ? url
-    : `${urlBase}/${url}`;
+    : `${host}/${url}`;
 
 const get = (url = '', headers = {}) => {
 
     console.log(`[HttpClient] GET REQUEST: ${readUrl(url)} | Headers: [${qs.stringify(headers)}]`)
 
-  return axios.get(readUrl(url), {
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-      ...headers,
-    },
-  })
+    return axios.get(readUrl(url), {
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            ...headers,
+        },
+    })
 };
 
 const post = (url = '', body = {}, headers = {}) => {
     console.log(`[HttpClient] POST REQUEST: ${readUrl(url)} | Body [${qs.stringify(body)}] | Headers: [${qs.stringify(headers)}]`)
 
-    return axios.post(readUrl(url), qs.stringify(body), {
+    return axios.post(readUrl(url), body, {
         headers: {
             Accept: 'application/json',
+            'Content-Type': 'application/json',
             ...headers,
         }
     })

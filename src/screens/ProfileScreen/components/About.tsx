@@ -27,6 +27,7 @@ const styles = StyleSheet.create({
         color: colors.darkHl,
         marginTop: 8,
         lineHeight: 22,
+        textAlign: 'justify'
     },
     sectionTitle: {
         fontWeight: "700",

@@ -7,6 +7,7 @@ import {GiftedChat} from 'react-native-gifted-chat'
 import {AuthService} from '../../clients/auth/AuthService';
 import {ChatService} from "../../clients/chat/ChatService";
 import moment from "moment";
+import { host } from "../../core/environment";
 
 type Props = {
     route: any;
@@ -15,7 +16,7 @@ type Props = {
 
 const MessageScreen = ({route, navigation}: Props) => {
 
-    const socket = new SockJS('http://192.168.1.97:8080/chat-websocket');
+    const socket = new SockJS(`${host}/chat-websocket`);
     const stompClient = Stomp.over(socket);
     const [userId, setUserId] = useState(undefined);
     const [messages, setMessages] = useState([]);
@@ -71,7 +72,7 @@ const MessageScreen = ({route, navigation}: Props) => {
 
     return (
         <>
-            <AppBarHeader navigation={navigation} title={route.params.name}/>
+            <AppBarHeader navigation={navigation} previous={true} title={route.params.name}/>
             <GiftedChat
                 messages={messages}
                 onSend={message => sendMessage(message)}
