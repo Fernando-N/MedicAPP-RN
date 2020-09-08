@@ -1,21 +1,16 @@
 import React, {memo, useState, useEffect} from 'react';
 import {StyleSheet, Text, View, Image} from 'react-native';
 import {Card, TouchableRipple} from 'react-native-paper';
-import {Navigation} from '../../models/';
 import {FlatList} from "react-native-gesture-handler";
-import {AuthService} from "../../clients/auth/AuthService";
-import {ChatService} from '../../clients/chat/ChatService';
+import {ChatService} from '../../services';
 import AppBarHeader from "../../components/AppBarHeader";
-import LoadingState from "../../components/LoadingState";
+import LoadingState from "../../components/LoadingStateFull";
 import Stomp from 'stompjs';
 import SockJS from 'sockjs-client';
 import { host } from "../../core/environment";
+import {NavigationService, SessionService} from "../../services";
 
-type Props = {
-    navigation: Navigation;
-};
-
-const MessagesScreen = ({navigation}: Props) => {
+const MessagesScreen = () => {
 
     const socket = new SockJS(`${host}/chat-websocket`);
     const stompClient = Stomp.over(socket);
@@ -23,7 +18,7 @@ const MessagesScreen = ({navigation}: Props) => {
     const [isLoading, setIsLoading] = useState(true);
 
     const _initClient = async () => {
-        const userId = await AuthService.getUserId();
+        const userId = await SessionService.getClaim('USER_ID');
 
         stompClient.connect({}, () => {
             stompClient.subscribe(
@@ -39,15 +34,12 @@ const MessagesScreen = ({navigation}: Props) => {
     }
 
     const _goToMessage = (userId, name) => {
-        navigation.navigate('MessageScreen', {userId, name,})
+        NavigationService.navigate('MessageScreen', {userId, name,})
     }
 
     const callback = (e) => {
         const msg = e.body;
         console.log(msg)
-        if (msg) {
-            setData([...data, e.body])
-        }
     }
 
     useEffect(() => {
@@ -78,7 +70,7 @@ const MessagesScreen = ({navigation}: Props) => {
 
     return (
         <>
-            <AppBarHeader navigation={navigation} previous={true} title={'Mensajes'} />
+            <AppBarHeader previous={true} title={'Mensajes'} />
             <View>
                 <FlatList
                     data={data}

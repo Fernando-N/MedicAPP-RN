@@ -1,22 +1,25 @@
 import React, {memo} from 'react'
 import {StyleSheet,Text,View, Image} from 'react-native'
-import {Navigation} from '../../../models/';
 import Rating from "../../../components/Rating";
 import {Card, TouchableRipple} from "react-native-paper";
-import {FlatList} from "react-native-gesture-handler";
+import {NavigationService} from "../../../services/navigation/NavigationService";
+import List from "../../../components/List";
 
 type Props = {
-    navigation: Navigation,
-    data: any
+    data: any,
+    loading: any,
+    getParamedics,
+    page: any,
+    setPage: any,
 };
 
-const ParamedicsList = ({navigation, data}: Props) => {
+const ParamedicsList = ({data, page, getParamedics, setPage, loading}: Props) => {
 
     const _goToProfile = (userId) => {
-        navigation.navigate('ProfileScreen', {userId: userId})
+        NavigationService.navigate('ProfileScreen', {userId: userId})
     }
 
-    const _renderParamedicCard = (paramedic) => (
+    const _renderParamedic = (paramedic) => (
         <Card style={styles.myCard}>
             <TouchableRipple rippleColor="rgba(0, 0, 0, .32)"
                              onPress={() => _goToProfile(paramedic.key)}
@@ -34,11 +37,18 @@ const ParamedicsList = ({navigation, data}: Props) => {
         </Card>
     )
 
+    const _incrementAndGetData = () => {
+        getParamedics(page + 1);
+        setPage(page + 1);
+    }
+
     return (
-        <FlatList
+        <List
             data={data}
-            renderItem={({item}) => (_renderParamedicCard(item))}
-            keyExtractor={(item) => item.key}
+            isLoading={loading}
+            incrementAndGetData={_incrementAndGetData}
+            renderItem={_renderParamedic}
+            noDataMsg={'No se encontraron paramedicos :('}
         />
     )
 };

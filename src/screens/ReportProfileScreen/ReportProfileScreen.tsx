@@ -1,18 +1,16 @@
 import React, {memo, useState} from 'react';
 import {StyleSheet, Alert} from 'react-native';
-import {Navigation} from "../../models/";
 import AppBarHeader from "../../components/AppBarHeader";
 import {Button, Paragraph} from "react-native-paper";
 import ReportForm from "./components/ReportForm";
 import {theme} from "../../core/theme";
-import {ProfileService} from "../../clients/profile/ProfileService";
+import {ProfileService} from "../../services/profile/ProfileService";
 
 type Props = {
-    navigation: Navigation,
     route: any
 };
 
-const ReportProfileScreen = ({navigation, route}: Props) => {
+const ReportProfileScreen = ({route}: Props) => {
 
     const [message, setMessage] = useState({error: '', value: ''});
 
@@ -28,7 +26,7 @@ const ReportProfileScreen = ({navigation, route}: Props) => {
 
     return (
         <>
-        <AppBarHeader previous={true} navigation={navigation} title={`Reportar ${route.params.name}`} />
+        <AppBarHeader previous={true} title={`Reportar ${route.params.name}`} />
         <Paragraph style={styles.paragraph}>Cuentanos que paso...</Paragraph>
         <ReportForm userId={route.params.userId} comment={message} setComment={setMessage} />
         <Button mode="contained" style={styles.button} labelStyle={styles.labelButton} onPress={_onReportPress}> Reportar </Button>

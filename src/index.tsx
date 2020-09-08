@@ -14,6 +14,8 @@ import {
     MessageScreen,
     ProfileScreen,
     ParamedicsScreen,
+    HospitalsScreen,
+    DrugstoresScreen,
     MapsScreen,
     FeedbacksScreen,
     EditProfileScreen,
@@ -41,8 +43,8 @@ const NoAuthNavigator = (): React.ReactElement => (
 );
 
 const AuthNavigator = (): React.ReactElement => (
-    <Drawer.Navigator drawerContent={(navigation) => <NavigationDrawer navigation={navigation} />}>
-        <Drawer.Screen name={'DashboardScreen'} component={Dashboard} options={{unmountOnBlur: true}} />
+    <Drawer.Navigator drawerContent={() => <NavigationDrawer />}>
+        <Drawer.Screen name={'DashboardScreen'} component={Dashboard} />
         <Drawer.Screen name={'ProfileScreen'} component={ProfileScreen} options={{unmountOnBlur: true}} />
         <Drawer.Screen name={'EditProfileScreen'} component={EditProfileScreen} options={{unmountOnBlur: true}} />
         <Drawer.Screen name={'MapsScreen'} component={MapsScreen} options={{unmountOnBlur: true}} />
@@ -52,6 +54,8 @@ const AuthNavigator = (): React.ReactElement => (
         <Drawer.Screen name={'ParamedicsScreen'} component={ParamedicsScreen} options={{unmountOnBlur: true}} />
         <Drawer.Screen name={'RateProfileScreen'} component={RateProfileScreen} options={{unmountOnBlur: true}} />
         <Drawer.Screen name={'ReportProfileScreen'} component={ReportProfileScreen} options={{unmountOnBlur: true}} />
+        <Drawer.Screen name={'HospitalsScreen'} component={HospitalsScreen} options={{unmountOnBlur: true}} />
+        <Drawer.Screen name={'DrugstoresScreen'} component={DrugstoresScreen} options={{unmountOnBlur: true}} />
     </Drawer.Navigator>
 );
 

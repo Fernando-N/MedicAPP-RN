@@ -1,12 +1,12 @@
 import React, {memo, useState} from 'react';
 import { Keyboard } from 'react-native';
 import {Appbar, Menu} from 'react-native-paper';
-import {Navigation} from "../models/";
 import {TouchableOpacity} from "react-native-gesture-handler";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {NavigationService} from "../services";
+import { useNavigation } from '@react-navigation/native';
 
 type Props = {
-    navigation : Navigation,
     previous?: boolean,
     search?: boolean,
     setIsDialogVisible?: any,
@@ -16,7 +16,8 @@ type Props = {
     menuFunctions?: any,
 };
 
-const AppBarHeader = ({ navigation, previous, title, showDots, menu, menuFunctions, search, setIsDialogVisible }: Props) => {
+const AppBarHeader = ({ previous, title, showDots, menu, menuFunctions, search, setIsDialogVisible }: Props) => {
+    const navigation = useNavigation();
 
     const [isMenuVisible, setIsMenuVisible] = useState(false);
     let menuItems = [];
@@ -33,7 +34,7 @@ const AppBarHeader = ({ navigation, previous, title, showDots, menu, menuFunctio
         <Appbar.Header>
             {previous ? (
                 <Appbar.BackAction
-                    onPress={() => navigation.goBack()}
+                    onPress={() => NavigationService.goBack()}
                     color={'#FFF'}
                 />
             ) : (

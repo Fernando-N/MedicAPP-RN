@@ -1,23 +1,38 @@
 import React, {memo, useEffect, useState} from 'react'
-import {StyleSheet,Text,View, Image} from 'react-native'
-import {Navigation} from '../../models';
+import { rateProfile } from "./menus";
+import { FeedbackService, NavigationService } from "../../services";
+import { View } from 'react-native'
 import AppBarHeader from "../../components/AppBarHeader";
-import {ParamedicService} from "../../clients/paramedic/ParamedicService";
-import FeedbacksList from "./components/FeedbacksList";
+import FeedbackList from "./components/FeedbacksList";
+import LoadingState from "../../components/LoadingState";
 
 type Props = {
-    navigation: Navigation,
     route: any,
 };
 
-const FeedbacksScreen = ({navigation, route}: Props) => {
+const FeedbacksScreen = ({route}: Props) => {
 
     const [data, setData] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading2, setIsLoading2] = useState(false);
+    const [page, setPage] = useState(1);
 
     const _getFeedback = async () => {
-        const response = await ParamedicService.getFeedbacksTo(route.params.userId);
-        setData(response.data);
+        setIsLoading2(true);
+        const response = await FeedbackService.getAllOfUserId(route.params.userId, page);
+        setData(prevArray => [...prevArray, ...response.data]);
+        setIsLoading(false);
+        setIsLoading2(false);
     }
+
+    const rateProfileFunctions = [
+        {
+            onPress: () => NavigationService.navigate('RateProfileScreen', {
+                name: route.params.name,
+                userId: route.params.userId
+            })
+        }
+    ]
 
     useEffect(() => {
         _getFeedback();
@@ -27,14 +42,22 @@ const FeedbacksScreen = ({navigation, route}: Props) => {
     return (
         <>
             <View style={{flex: 1}}>
-
+                <LoadingState isLoading={isLoading} />
                 <AppBarHeader
-                    navigation={navigation}
                     previous={true}
                     title={`Comentarios de ${route.params.name}`}
+                    showDots={true}
+                    menuFunctions={rateProfileFunctions}
+                    menu={rateProfile}
                 />
 
-                <FeedbacksList data={data} />
+                <FeedbackList
+                    data={data}
+                    loading={isLoading2}
+                    getFeedback={_getFeedback}
+                    page={page}
+                    setPage={setPage}
+                />
 
             </View>
         </>
@@ -48,23 +71,5 @@ const colors = {
     text: "#fff",
     darkHl: "#666",
 }
-
-const styles = StyleSheet.create({
-    container: {
-        margin: 32,
-    },
-    about: {
-        fontSize: 15,
-        fontWeight: "500",
-        color: colors.darkHl,
-        marginTop: 8,
-        lineHeight: 22,
-    },
-    sectionTitle: {
-        fontWeight: "700",
-        color: colors.text,
-        fontSize: 15,
-    },
-})
 
 export default memo(FeedbacksScreen);

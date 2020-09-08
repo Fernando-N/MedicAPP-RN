@@ -1,11 +1,8 @@
 import React, {memo, useEffect, useState} from 'react'
-import {StyleSheet,Text,View, Image} from 'react-native'
-import {Navigation} from '../../../models/';
-import Rating from "../../../components/Rating";
-import {Button, Card, Dialog, TouchableRipple} from "react-native-paper";
-import {FlatList} from "react-native-gesture-handler";
-import RNPickerSelect from "react-native-picker-select";
-import {UtilService} from "../../../clients/util/UtilService";
+import { StyleSheet } from 'react-native'
+import { Button, Dialog } from "react-native-paper";
+import { LocationService } from "../../../services";
+import { Picker } from '@react-native-community/picker';
 
 type Props = {
     region: string,
@@ -26,7 +23,7 @@ const DialogFilter = ({commune, setCommune, region, setRegion, setIsModalVisible
 
     const _handleRegionSelect = (value) => {
         setRegion(value);
-        UtilService.getCommunes(value, setCommunes);
+        LocationService.getCommunes(value, setCommunes);
     }
 
     const _clearFilters = () => {
@@ -36,9 +33,17 @@ const DialogFilter = ({commune, setCommune, region, setRegion, setIsModalVisible
         getAllParamedics();
     }
 
+    const regionPickerRender = regions.map((value, index) => (
+            <Picker.Item key={index} value={value.value} label={value.label} />
+    ));
+
+    const communePickerRender = communes.map((value, index) => (
+        <Picker.Item key={index} value={value.value} label={value.label} />
+    ));
+
     useEffect(() => {
-        UtilService.getRegions(setRegions);
-    }, [])
+        LocationService.getRegions(setRegions);
+    }, []);
 
     return (
         <Dialog
@@ -49,25 +54,16 @@ const DialogFilter = ({commune, setCommune, region, setRegion, setIsModalVisible
 
             <Dialog.Content>
 
-                <RNPickerSelect
-                    placeholder={{
-                        label: 'Selecciona tu región...',
-                        value: null,
-                        color: '#9EA0A4',
-                    }}
-                    onValueChange={(value) => _handleRegionSelect(value)}
-                    items={regions}
-                />
+                <Picker selectedValue={region} onValueChange={(value) => _handleRegionSelect(value)} >
+                    <Picker.Item value={undefined} label='-- Selecciona una región --' />
+                    {regionPickerRender}
+                </Picker>
 
-                <RNPickerSelect
-                    placeholder={{
-                        label: 'Selecciona tu comuna...',
-                        value: null,
-                        color: '#9EA0A4',
-                    }}
-                    onValueChange={setCommune}
-                    items={communes}
-                />
+                <Picker selectedValue={commune} onValueChange={(value) => setCommune(value)} >
+                    <Picker.Item value={undefined} label='-- Selecciona una comuna --' />
+                    {communePickerRender}
+                </Picker>
+
 
             </Dialog.Content>
 

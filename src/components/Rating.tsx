@@ -6,9 +6,11 @@ type Props = {
     rating: number,
     size: number,
     onPress?: Function
+    onPressStar?: Function,
+    style?: any
 };
 
-const Rating = ({rating, size, onPress}: Props) => {
+const Rating = ({rating, size, onPress, onPressStar, style}: Props) => {
 
     const animation = new Animated.Value(1);
 
@@ -57,6 +59,8 @@ const Rating = ({rating, size, onPress}: Props) => {
                     rate(x), animate();
                     if (onPress) {
                         onPress();
+                    }else if (onPressStar) {
+                        onPressStar(x);
                     }
                 }}
             >
@@ -69,7 +73,7 @@ const Rating = ({rating, size, onPress}: Props) => {
 
 
     return (
-        <View>
+        <View style={style ? style : {}}>
             <View style={{ flexDirection: "row" }}>{stars}</View>
         </View>
     )

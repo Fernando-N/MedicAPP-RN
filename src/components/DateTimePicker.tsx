@@ -5,8 +5,13 @@ import moment from "moment";
 import 'moment/locale/es'
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
-type Props = React.ComponentProps<typeof TextInput> & {isVisible?: boolean} & {mode?: string}
-    & {value?: {}} & {toggleDatePicker?: Function } & {onConfirm?: Function} & [] ;
+type Props = React.ComponentProps<typeof TextInput> &
+    {
+        isVisible?: boolean,
+        mode?: string,
+        value?: {},
+        toggleDatePicker?: any,
+        onConfirm?: any} & [] ;
 
 const DateTimePicker = ({isVisible, mode, value, toggleDatePicker, onConfirm, ...textInputProps}: Props) => (
     <>

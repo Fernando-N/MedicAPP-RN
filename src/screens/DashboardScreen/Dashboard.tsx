@@ -1,42 +1,47 @@
 import React, {memo, useState, useEffect} from 'react';
-import Background from '../../components/Background';
-import Logo from '../../components/Logo';
-import Header from '../../components/Header';
-import Paragraph from '../../components/Paragraph';
 import Button from '../../components/Button';
-import {Navigation} from "../../models/";
-import {AuthService} from '../../clients/auth/AuthService';
 import AppBarHeader from "../../components/AppBarHeader";
+import {AuthService, LocationService, NavigationService, SessionService} from "../../services";
+import Menu from "./components/Menu";
+import Header from "./components/Header";
+import LoadingState from "../../components/LoadingState";
 
-type Props = {
-    navigation: Navigation;
-};
 
-const Dashboard = ({navigation}: Props) => {
-    const [name, setName] = useState(undefined);
+const Dashboard = () => {
+    const [isLoading, setIsLoading] = useState(true);
+
+    const _getCurrentLocation = () => {
+        navigator.geolocation.getCurrentPosition(
+            async (pos) => {
+                console.log(pos.coords)
+                const response = await LocationService.getCommuneFromLatitudeAndLongitude({latitude: pos.coords.latitude, longitude: pos.coords.longitude});
+                LocationService.setCurrentLocation(response.data);
+                setIsLoading(false);
+            },
+            (error) => {
+                console.log('Error obteniendo ubicacion', error.message);
+                setIsLoading(false);
+            })
+    }
 
     useEffect(() => {
-        AuthService.getUserName(setName);
+        _getCurrentLocation();
     }, []);
 
     const _onLogoutPress = async () => {
         await AuthService.logout();
-        navigation.navigate('Init');
+        NavigationService.navigate('Init');
     }
 
     return (
         <>
-        <AppBarHeader navigation={navigation} title={'Dashboard'} />
-        <Background>
-            <Logo/>
-            <Header>Hola, {name}</Header>
-            <Paragraph>
-                Aquí no se que poner
-            </Paragraph>
-            <Button mode="outlined" onPress={_onLogoutPress}>
-                Logout
-            </Button>
-        </Background>
+        <AppBarHeader title={'Dashboard'} />
+        <LoadingState isLoading={isLoading} />
+        <Header />
+        <Menu />
+        <Button mode="outlined" onPress={_onLogoutPress}>
+        Logout
+        </Button>
         </>
     );
 };

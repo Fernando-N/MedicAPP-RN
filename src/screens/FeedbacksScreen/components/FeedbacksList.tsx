@@ -1,16 +1,20 @@
-import React, {memo} from 'react'
+import React, {memo, useState} from 'react'
 import {StyleSheet,Text,View, Image} from 'react-native'
-import {Navigation} from '../../../models/';
 import Rating from "../../../components/Rating";
-import {Card, TouchableRipple} from "react-native-paper";
+import {ActivityIndicator, Card, TouchableRipple} from "react-native-paper";
 import {FlatList} from "react-native-gesture-handler";
 import {avatarDefault} from "../../../constants/default";
+import List from "../../../components/List";
 
 type Props = {
-    data: any
+    data: any,
+    loading: any,
+    getFeedback,
+    page: any,
+    setPage: any,
 };
 
-const FeedbacksList = ({data}: Props) => {
+const FeedbacksList = ({data, loading, getFeedback, page, setPage}: Props) => {
 
     const _renderFeedback = (feedback) => (
         <Card style={styles.myCard}>
@@ -35,11 +39,17 @@ const FeedbacksList = ({data}: Props) => {
         </Card>
     )
 
+    const _incrementAndGetData = () => {
+        getFeedback(page + 1);
+        setPage(page + 1);
+    }
+
     return (
-        <FlatList
+        <List
             data={data}
-            renderItem={({item}) => (_renderFeedback(item))}
-            keyExtractor={(item) => item.id}
+            isLoading={loading}
+            incrementAndGetData={_incrementAndGetData}
+            renderItem={_renderFeedback}
         />
     )
 };

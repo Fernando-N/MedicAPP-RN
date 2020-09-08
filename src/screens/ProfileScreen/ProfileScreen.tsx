@@ -1,26 +1,23 @@
 import React, {memo, useEffect, useState} from 'react'
 import {StyleSheet, ScrollView} from 'react-native'
-import {Navigation} from '../../models/';
 import AppBarHeader from "../../components/AppBarHeader";
-import LoadingState from "../../components/LoadingState";
-import {ProfileService} from "../../clients/profile/ProfileService";
-import {AuthService} from "../../clients/auth/AuthService";
+import {ProfileService} from "../../services/profile/ProfileService";
 import Stats from "./components/Stats";
 import Header from "./components/Header";
 import About from "./components/About";
 import Location from "./components/Location";
-import {ParamedicService} from "../../clients/paramedic/ParamedicService";
 import {othersMenu, ownMenu} from "./menus";
+import {NavigationService, ParamedicService, SessionService} from "../../services";
+import LoadingState from "../../components/LoadingState";
 
 type Props = {
     route: any;
-    navigation: Navigation;
 };
 
-const ProfileScreen = ({navigation, route}: Props) => {
+const ProfileScreen = ({route}: Props) => {
 
     const [isLoading, setIsLoading] = useState(true);
-    const [data, setData] = useState(undefined);
+    const [data, setData] = useState({commune: {}, region: {}});
     const [stats, setStats] = useState({valuations: 0, contacts: 0, rating: 0});
     const [isMyProfile, setIsMyProfile] = useState(false);
 
@@ -28,21 +25,26 @@ const ProfileScreen = ({navigation, route}: Props) => {
         const response = await ProfileService.getProfile(route.params.userId);
         setData(response.data);
 
-        const userId = await AuthService.getUserId();
+        const userId = await SessionService.getClaim('USER_ID');
         if (userId === response.data.key) setIsMyProfile(true);
+
+        if (response.data.paramedic) {
+            console.log('obteniendo stats')
+            _getStats();
+        }
 
         setIsLoading(false);
     }
 
     const ownMenuFunctions = [
         {
-            onPress: () => navigation.navigate('EditProfileScreen')
+            onPress: () => NavigationService.navigate('EditProfileScreen')
         }
     ]
 
     const othersMenuFunctions = [
         {
-            onPress: () => navigation.navigate('ReportProfileScreen', {
+            onPress: () => NavigationService.navigate('ReportProfileScreen', {
                 name: `${data.firstName} ${data.lastName}`,
                 userId: route.params.userId
             })
@@ -50,7 +52,7 @@ const ProfileScreen = ({navigation, route}: Props) => {
     ]
 
     const _getStats = async () => {
-        const response = await ParamedicService.getStats(route.params.userId);
+        const response = await ParamedicService.getStatsOfUserId(route.params.userId);
 
         if (response.error) {
             setStats({rating: 0, contacts: 0, valuations: 0})
@@ -62,7 +64,7 @@ const ProfileScreen = ({navigation, route}: Props) => {
 
     const _goToMaps = () => {
         if (data.showAddress) {
-            navigation.navigate('MapsScreen', {
+            NavigationService.navigate('MapsScreen', {
                 name: `${data.firstName} ${data.lastName}`,
                 address: data.address,
                 commune: data.commune.label,
@@ -72,7 +74,7 @@ const ProfileScreen = ({navigation, route}: Props) => {
     }
 
     const _goToFeedback = () => {
-        navigation.navigate('FeedbacksScreen', {
+        NavigationService.navigate('FeedbacksScreen', {
             name: `${data.firstName} ${data.lastName}`,
             userId: route.params.userId
         });
@@ -80,24 +82,19 @@ const ProfileScreen = ({navigation, route}: Props) => {
 
     useEffect(() => {
         _getProfile();
-        setTimeout(() => {
-            _getStats();
-        }, 100)
-
     }, [])
-
-    if (isLoading) return <LoadingState/>;
 
     return (
         <>
             <AppBarHeader
-                navigation={navigation}
                 previous={true}
                 title={`Perfil de ${data.firstName} ${data.lastName}`}
-                showDots={true}
+                showDots={false}
                 menu={isMyProfile ? ownMenu : othersMenu}
                 menuFunctions={isMyProfile ? ownMenuFunctions : othersMenuFunctions}
             />
+
+            <LoadingState isLoading={isLoading} />
 
             <ScrollView style={styles.container}>
 
@@ -107,7 +104,7 @@ const ProfileScreen = ({navigation, route}: Props) => {
                     isMyProfile={isMyProfile}
                     isParamedic={data.paramedic}
                     stars={stats.rating}
-                    navigation={navigation} />
+                />
 
                 {data.paramedic && <Stats stats={stats} />}
 

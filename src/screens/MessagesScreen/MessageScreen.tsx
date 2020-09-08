@@ -1,20 +1,18 @@
 import React, {useState, useEffect, useCallback, memo} from 'react';
-import {Navigation} from '../../models/';
 import AppBarHeader from "../../components/AppBarHeader";
 import Stomp from 'stompjs';
 import SockJS from 'sockjs-client';
 import {GiftedChat} from 'react-native-gifted-chat'
-import {AuthService} from '../../clients/auth/AuthService';
-import {ChatService} from "../../clients/chat/ChatService";
+import {ChatService} from '../../services';
 import moment from "moment";
 import { host } from "../../core/environment";
+import {SessionService} from "../../services";
 
 type Props = {
     route: any;
-    navigation: Navigation;
 };
 
-const MessageScreen = ({route, navigation}: Props) => {
+const MessageScreen = ({route}: Props) => {
 
     const socket = new SockJS(`${host}/chat-websocket`);
     const stompClient = Stomp.over(socket);
@@ -24,18 +22,21 @@ const MessageScreen = ({route, navigation}: Props) => {
     const callback = (e) => {
         const msg = JSON.parse(e.body)
         if (msg) {
-            msg.createdAt = moment(msg.createdAt);
+            console.log('hora antes de formatear: ' + msg.createdAt)
+            msg.createdAt = moment(msg.createdAt).format('YYYY-MM-DD hh:mm:ss');
+            console.log('hora despues de formatear: ' + msg.createdAt)
             appendMsg(msg)
         }
     }
 
     const sendMessage = async (msg) => {
-        const token = await AuthService.getToken();
+        const token = await SessionService.getToken();
         stompClient.send('/app/message', {Authorization: 'Bearer ' + token}, JSON.stringify({
             ...msg[0],
             to: route.params.userId
         }));
         msg[0].createdAt = new Date();
+        console.log(msg)
         appendMsg(msg)
     }
 
@@ -46,7 +47,7 @@ const MessageScreen = ({route, navigation}: Props) => {
     useEffect(() => {
         setMessages([]);
         const initClient = async () => {
-            const id = await AuthService.getUserId();
+            const id = await SessionService.getClaim('USER_ID');
             setUserId(id)
             stompClient.connect({}, () => {
                 stompClient.subscribe(
@@ -56,9 +57,9 @@ const MessageScreen = ({route, navigation}: Props) => {
         }
 
         const getMessages = async () => {
-            const response = await ChatService.getAllTo(route.params.userId);
+            const response = await ChatService.getAllWithUserId(route.params.userId);
             response.data.forEach(function (valor, indice, array) {
-                response.data[indice].createdAt = moment(response.data[indice].createdAt).format('YYYY-MM-DD HH:MM:SS');
+                response.data[indice].createdAt = moment(response.data[indice].createdAt).format('YYYY-MM-DD hh:mm:ss');
             });
             setMessages(previousMessages => GiftedChat.append(previousMessages, response.data));
         }
@@ -72,7 +73,7 @@ const MessageScreen = ({route, navigation}: Props) => {
 
     return (
         <>
-            <AppBarHeader navigation={navigation} previous={true} title={route.params.name}/>
+            <AppBarHeader previous={true} title={route.params.name}/>
             <GiftedChat
                 messages={messages}
                 onSend={message => sendMessage(message)}

@@ -3,27 +3,31 @@ import { View, StyleSheet} from 'react-native';
 import {Drawer, Avatar, Title, Caption, TouchableRipple, Switch, Text} from 'react-native-paper';
 import {DrawerContentScrollView, DrawerItem} from "@react-navigation/drawer";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {AuthService} from "../clients/auth/AuthService";
-import {avatarDefault} from "../constants/default";
+import { avatarDefault } from "../constants/default";
 import { useNavigation } from '@react-navigation/native';
+import {AuthService, NavigationService, SessionService} from "../services";
 
 type Props = {
-    navigation: any,
     props?: any
 };
 
 const NavigationDrawer = ({props}: Props) => {
     const [userInfo, setUserInfo] = useState({userId: '', name: '', email: '', photo: avatarDefault});
 
+    const _getUserInfo = async () => {
+        const response = await SessionService.getUserInfo();
+        setUserInfo(response)
+    }
+
     useEffect(() => {
-        AuthService.getUserInfo(setUserInfo);
+        _getUserInfo();
     }, []);
 
     const navigation = useNavigation();
 
     const _onLogoutPress = async () => {
         await AuthService.logout();
-        navigation.navigate('Init');
+        NavigationService.navigate('Init');
     }
 
     return (
@@ -44,14 +48,14 @@ const NavigationDrawer = ({props}: Props) => {
                             />
                         )}
                         label="Perfil"
-                        onPress={() => navigation.navigate('ProfileScreen', {userId: userInfo.userId})}
+                        onPress={() => NavigationService.navigate('ProfileScreen', {userId: userInfo.userId})}
                     />
                     <DrawerItem
                         icon={({color, size}) => (
                             <MaterialCommunityIcons name="message-text-outline" color={color} size={size}/>
                         )}
                         label="Mensajes"
-                        onPress={() => navigation.navigate('MessagesScreen')}
+                        onPress={() => NavigationService.navigate('MessagesScreen')}
                     />
                     <DrawerItem
                         icon={({color, size}) => (
@@ -62,7 +66,7 @@ const NavigationDrawer = ({props}: Props) => {
                             />
                         )}
                         label="Paramedicos"
-                        onPress={() => navigation.navigate('ParamedicsScreen')}
+                        onPress={() => NavigationService.navigate('ParamedicsScreen')}
                     />
 
                     <DrawerItem

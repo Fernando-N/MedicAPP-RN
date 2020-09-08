@@ -7,28 +7,21 @@ import Button from '../../components/Button';
 import TextInput from '../../components/TextInput';
 import ScrollContainer from '../../components/ScrollContainer';
 import {theme} from '../../core/theme';
-import {Navigation} from '../../models/';
-import {AuthService} from '../../clients/auth/AuthService';
-import {Validate} from '../../core/utils';
+import {AuthService, NavigationService} from '../../services';
+import {Validate} from '../../utils/utils';
 
-type Props = {
-    navigation: Navigation;
-};
-
-const LoginScreen = ({navigation}: Props) => {
-    const [email, setEmail] = useState({value: 'admin@test.com', error: ''});
-    const [password, setPassword] = useState({value: 'test', error: ''});
+const LoginScreen = () => {
+    const [email, setEmail] = useState({value: '', error: ''});
+    const [password, setPassword] = useState({value: '', error: ''});
     const [buttonDisabled, setButtonDisabled] = useState(false);
     let inputs = {};
 
     const _onLoginPressed = async () => {
         setButtonDisabled(true);
         const emailError = Validate.email(email.value);
-        const passwordError = Validate.password(password.value);
 
-        if (emailError || passwordError) {
+        if (emailError) {
             setEmail({...email, error: emailError});
-            setPassword({...password, error: passwordError});
             setButtonDisabled(false);
             return;
         }
@@ -42,9 +35,7 @@ const LoginScreen = ({navigation}: Props) => {
             return;
         }
 
-        navigation.reset({
-            routes: [{name: 'AuthNavigator'}]
-        });
+        NavigationService.reset('AuthNavigator');
     };
 
     return (
@@ -72,6 +63,7 @@ const LoginScreen = ({navigation}: Props) => {
                     label="Contraseña"
                     reference={inputs}
                     returnKeyType="done"
+                    autoCapitalize="none"
                     value={password.value}
                     onChangeText={text => setPassword({value: text, error: ''})}
                     error={password.error}
@@ -81,7 +73,7 @@ const LoginScreen = ({navigation}: Props) => {
 
                 <View style={styles.forgotPassword}>
                     <TouchableOpacity
-                        onPress={() => navigation.navigate('ForgotPasswordScreen')}
+                        onPress={() => NavigationService.navigate('ForgotPasswordScreen')}
                     >
                         <Text style={styles.label}>¿Olvidaste tu contraseña?</Text>
                     </TouchableOpacity>
@@ -93,7 +85,7 @@ const LoginScreen = ({navigation}: Props) => {
 
                 <View style={styles.row}>
                     <Text style={styles.label}>¿Aún no tienes cuenta? </Text>
-                    <TouchableOpacity onPress={() => navigation.navigate('RegisterScreen')}>
+                    <TouchableOpacity onPress={() => NavigationService.navigate('RegisterScreen')}>
                         <Text style={styles.link}>Registrate</Text>
                     </TouchableOpacity>
                 </View>

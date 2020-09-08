@@ -1,293 +1,232 @@
-import React, { memo, useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Alert, Keyboard } from 'react-native';
-import Background from "../../components/Background";
-import Checkbox from '../../components/Switch';
-import TextInput from '../../components/TextInput';
-import ScrollContainer from '../../components/ScrollContainer';
-import DateTimePicker from '../../components/DateTimePicker';
-import { theme } from '../../core/theme';
-import { Navigation } from '../../models/';
-import { Validate } from '../../core/utils';
-import { ProgressSteps, ProgressStep } from 'react-native-progress-steps';
-import Paragraph from "../../components/Paragraph";
-import RNPickerSelect from 'react-native-picker-select';
-import { UtilService } from '../../clients/util/UtilService';
+import React, { memo, useState } from 'react';
+import { View, Alert } from 'react-native';
+import {AuthService, NavigationService} from "../../services";
+import FirstStep from "./components/steps/FirstStep";
+import SecondStep from "./components/steps/SecondStep";
+import StepIndicator from 'react-native-step-indicator';
+import {ScrollView} from "react-native-gesture-handler";
+import {Button} from "react-native-paper";
+import ThirdStep from "./components/steps/ThirdStep";
+import FourStep from "./components/steps/FourStep";
+import {User} from "../../models";
 
 
-type Props = {
-    navigation: Navigation;
-};
+const RegisterScreen = () => {
 
-const RegisterScreen = ({navigation}: Props) => {
-    const [name, setName] = useState({value: '', error: ''});
+    // Datos usuarios en comun
+    const [firstName, setFirstName] = useState({value: '', error: ''});
     const [lastName, setLastName] = useState({value: '', error: ''});
     const [rut, setRut] = useState({value: '', error: ''});
     const [dateOfBirth, setDateOfBirth] = useState({value: new Date(), error: ''});
-    const [isDatePickerVisible, setDatePickerVisible] = useState(false);
     const [email, setEmail] = useState({value: '', error: ''});
     const [password, setPassword] = useState({value: '', error: ''});
-    const [isParamedic, setParamedic] = useState(false);
+    const [password2, setPassword2] = useState({value: '', error: ''});
+    const [isParamedic, setIsParamedic] = useState(false);
     const [nationality, setNationality] = useState('');
     const [region, setRegion] = useState('');
     const [commune, setCommune] = useState('');
-    const [address, setAddress] = useState('');
+    const [address, setAddress] = useState({value: '', error: ''});
+    const [showAddress, setShowAddress] = useState(true);
+    const [profileImageB64, setProfileImageB64] = useState('');
 
+    // Datos paramedico
+    const [aboutMe, setAboutMe] = useState(undefined);
+    const [graduationYear, setGraduationYear] = useState('2020');
+    const [certificateNationalHealth, setCertificateNationalHealth] = useState('');
+    const [carnetImage, setCarnetImage] = useState('');
+    const [titleImage, setTitleImage] = useState('');
 
-    const [nationalities, setNationalities] = useState([{value: null, label: ''}]);
-    const [regions, setRegions] = useState([{value: null, label: ''}]);
-    const [communes, setCommunes] = useState([{value: null, label: ''}]);
+    const [step, setStep] = useState(0);
+    const [stepCount, setStepCount] = useState(3);
 
     let inputs = {};
 
-    useEffect(() => {
-        const getNationality = () => {
-            UtilService.getNationalities(setNationalities);
+    const _register = async () => {
+
+        const user : User = {
+            email: email.value,
+            password: password.value,
+            rut: rut.value,
+            firstName: firstName.value,
+            lastName: lastName.value,
+            birthDay: dateOfBirth.value,
+            commune: {
+                value: commune
+            },
+            showAddress: showAddress,
+            address: address.value,
+            aboutMe: aboutMe,
+            profileImage: profileImageB64,
+            titleImage: titleImage,
+            graduationYear: Number(graduationYear),
+            certificateNationalHealth: certificateNationalHealth,
+            carnetImage: carnetImage,
+            paramedic: isParamedic,
+        };
+
+        if (!isParamedic) {
+            user.aboutMe = undefined;
+            user.graduationYear = undefined;
+            user.certificateNationalHealth = undefined;
+            user.titleImage = undefined;
+            user.carnetImage = undefined;
         }
 
-        const getRegions = () => {
-            UtilService.getRegions(setRegions);
-        }
+        const response = await AuthService.register(user);
 
-
-        getNationality();
-        getRegions();
-
-        console.log(nationalities);
-
-    }, [])
-
-    const _handleRutInput = (rutInput: string) => Validate.rut(rutInput, setRut);
-
-    const _handleRegionSelect = (regionId: string) => {
-        setRegion(regionId);
-        UtilService.getCommunes(regionId, setCommunes);
-    };
-
-    const _onSignUpPressed = () => {
-        const nameError = Validate.name(name.value);
-        const emailError = Validate.email(email.value);
-        const passwordError = Validate.password(password.value);
-
-
-        if (emailError || passwordError || nameError) {
-            setName({...name, error: nameError});
-            setEmail({...email, error: emailError});
-            setPassword({...password, error: passwordError});
+        if (response.success == false) {
+            Alert.alert(
+                'Error al registrar',
+                response.error ? response.error : 'Error al realizar el registro, reintentalo mas tarde',
+                [{
+                    text: 'OK', onPress: () => {}
+                }]
+            )
             return;
         }
 
-        navigation.navigate('Dashboard');
+        Alert.alert(
+            'Registrado con exito',
+            isParamedic ?
+                'Tu registro debe ser aprobado por un administrador de MedicAPP, te notificaremos cuando esto ocurra' :
+                'Registrado con exito, ya puedes usar MedicAPP!',
+            [
+                { text: "OK", onPress: () => NavigationService.navigate('LoginScreen') }
+            ],
+            { cancelable: false }
+        );
+
     };
 
-    const progressStepsProperties = {
-        topOffset: -10,
-        marginBottom: 0
-    };
+    const _previousStep = () => {
+        if (step < 4 && step != 0) {
+            setStep(step - 1);
+        }
+    }
 
-    const progressStepDefaultProps = {
-        nextBtnText: 'Siguiente',
-        previousBtnText: 'Volver',
-        finishBtnText: 'Enviar'
-    };
+    const _nextStep = async () => {
+        if ((step == 0 && (firstName.error != '' || lastName.error != '' || rut.error != '')) || (step == 1 && (address.error != ''))) {
+            Alert.alert('Error', 'Verifica los datos ingresados.')
+            return;
+        }
 
-    const _handleDatePickerConfirm = (date) => {
-        _toggleDatePickerVisibility();
-        setDateOfBirth({value: date, error: ''});
-    };
+        if (step < 2) {
+            setStep(step + 1);
+        } else if (step == 2 && !isParamedic) {
+            await _register();
+        } else if (step == 2 && isParamedic) {
+            setStep(step + 1);
+        } else if (step == 3) {
+            await _register();
+        }
+    }
 
-    const _toggleDatePickerVisibility = () => {
-        setDatePickerVisible(!isDatePickerVisible);
-        Keyboard.dismiss();
-    };
+    const _toggleIsParamedic = () => {
+        if (isParamedic) {
+            setStepCount(3)
+        } else {
+            setStepCount(4)
+        }
+        setIsParamedic(!isParamedic);
 
-    const _handleDatePicker = () => {
-        Keyboard.dismiss();
     }
 
     return (
-        <ScrollContainer>
-            <Background>
-                <View>
-                    <ProgressSteps {...progressStepsProperties}>
+        <View>
+            <ScrollView>
 
-                        <ProgressStep scrollable={false} label="Antecedentes Personales" {...progressStepDefaultProps}>
-                                <Paragraph>Cuentanos sobre ti...</Paragraph>
-                                <TextInput
-                                    label="Nombre"
-                                    returnKeyType="next"
-                                    value={name.value}
-                                    onChangeText={text => setName({value: text, error: ''})}
-                                    error={name.error}
-                                    errorText={name.error}
-                                    textStyle={styles.input}
-                                    onSubmitEditing={() => inputs['Apellidos'].focus()}
-                                />
-
-                                <TextInput
-                                    label="Apellidos"
-                                    reference={inputs}
-                                    returnKeyType="next"
-                                    value={lastName.value}
-                                    onChangeText={text => setLastName({value: text, error: ''})}
-                                    error={lastName.error}
-                                    errorText={lastName.error}
-                                    textStyle={styles.input}
-                                    onSubmitEditing={() => inputs['Rut'].focus()}
-                                />
-
-                                <TextInput
-                                    label="Rut"
-                                    reference={inputs}
-                                    returnKeyType="next"
-                                    keyboardType={'numeric'}
-                                    value={rut.value}
-                                    onChangeText={_handleRutInput}
-                                    error={rut.error}
-                                    errorText={rut.error}
-                                    textStyle={styles.input}
-                                    onSubmitEditing={_toggleDatePickerVisibility}
-                                />
-
-                                <DateTimePicker
-                                    label="Fecha de nacimiento"
-                                    reference={inputs}
-                                    value={dateOfBirth}
-                                    textStyle={styles.input}
-                                    isVisible={isDatePickerVisible}
-                                    onConfirm={_handleDatePickerConfirm}
-                                    toggleDatePicker={_toggleDatePickerVisibility}
-                                />
-
-                        </ProgressStep>
-
-                        <ProgressStep label="Ubicación" {...progressStepDefaultProps}>
-                            <RNPickerSelect
-                                placeholder={{
-                                    label: 'Selecciona tu nacionalidad...',
-                                    value: null,
-                                    color: '#9EA0A4',
-                                }}
-                                onValueChange={setNationality}
-                                items={nationalities}
-                            />
-
-                            <RNPickerSelect
-                                placeholder={{
-                                    label: 'Selecciona tu región...',
-                                    value: null,
-                                    color: '#9EA0A4',
-                                }}
-                                onValueChange={(value) => _handleRegionSelect(value)}
-                                items={regions}
-                            />
-
-                            <RNPickerSelect
-                                placeholder={{
-                                    label: 'Selecciona tu comuna...',
-                                    value: null,
-                                    color: '#9EA0A4',
-                                }}
-                                onValueChange={setCommune}
-                                items={communes}
-                            />
-
-                            <TextInput
-                                label="Dirección"
-                                reference={inputs}
-                                returnKeyType="next"
-                                value={address}
-                                onChangeText={setAddress}
-                                textStyle={styles.input}
-                            />
-
-                        </ProgressStep>
-
-                        <ProgressStep onNext={() => {
-                            if (!isParamedic) {
-                                Alert.alert('No eres paramedico!');
-                            }
-                        }} label="Perfil" {...progressStepDefaultProps} errors={!isParamedic}>
-                            <View style={{ alignItems: 'center' }}>
-                                <Text>This is the content within step 3!</Text>
-                                <Checkbox
-                                    value={isParamedic}
-                                    onValueChange={() => setParamedic(!isParamedic)}
-                                />
-                            </View>
-                        </ProgressStep>
-
-                        <ProgressStep label="Antecedentes profesionales" {...progressStepDefaultProps}>
-                            <View style={{ alignItems: 'center' }}>
-                                <Text>This is the content within step 4!</Text>
-                            </View>
-                        </ProgressStep>
-
-
-                    </ProgressSteps>
+                <View style={{marginTop: 15, marginBottom: 15}}>
+                    <StepIndicator
+                        customStyles={stepsStyles}
+                        currentPosition={step}
+                        stepCount={stepCount}
+                    />
                 </View>
 
+                <View style={{paddingHorizontal: 15}}>
+                    { step==0 && <FirstStep
+                        name={firstName}
+                        setName={setFirstName}
+                        lastName={lastName}
+                        setLastName={setLastName}
+                        dateOfBirth={dateOfBirth}
+                        inputs={inputs}
+                        rut={rut}
+                        setDateOfBirth={setDateOfBirth}
+                        setRut={setRut}
+                    />}
 
+                    { step==1 && <SecondStep
+                        inputs={inputs}
+                        address={address}
+                        setAddress={setAddress}
+                        region={region}
+                        setRegion={setRegion}
+                        commune={commune}
+                        setCommune={setCommune}
+                        nationality={nationality}
+                        setNationality={setNationality}
+                        showAddress={showAddress}
+                        setShowAddress={setShowAddress}
+                    />}
 
-                {/*<TextInput*/}
-                {/*    label="Email"*/}
-                {/*    returnKeyType="next"*/}
-                {/*    value={email.value}*/}
-                {/*    onChangeText={text => setEmail({value: text, error: ''})}*/}
-                {/*    error={email.error}*/}
-                {/*    errorText={email.error}*/}
-                {/*    autoCapitalize="none"*/}
-                {/*    autoCompleteType="email"*/}
-                {/*    textContentType="emailAddress"*/}
-                {/*    keyboardType="email-address"*/}
-                {/*    textStyle={styles.input}*/}
-                {/*/>*/}
+                    { step==2 && <ThirdStep
+                        inputs={inputs}
+                        email={email}
+                        setEmail={setEmail}
+                        password={password}
+                        setPassword={setPassword}
+                        password2={password2}
+                        setPassword2={setPassword2}
+                        setProfileImageB64={setProfileImageB64}
+                        isParamedic={isParamedic}
+                        toggleIsParamedic={_toggleIsParamedic}
+                    />}
 
-                {/*<TextInput*/}
-                {/*    label="Contraseña"*/}
-                {/*    returnKeyType="done"*/}
-                {/*    value={password.value}*/}
-                {/*    onChangeText={text => setPassword({value: text, error: ''})}*/}
-                {/*    error={password.error}*/}
-                {/*    errorText={password.error}*/}
-                {/*    secureTextEntry*/}
-                {/*    textStyle={styles.input}*/}
-                {/*/>*/}
+                    { step == 3 && <FourStep
+                        aboutMe={aboutMe}
+                        setAboutMe={setAboutMe}
+                        graduationYear={graduationYear}
+                        setGraduationYear={setGraduationYear}
+                        setCertificateNationalHealth={setCertificateNationalHealth}
+                        setCarnetImage={setCarnetImage}
+                        setTitleImage={setTitleImage}
+                    />}
 
-                {/*<Button mode="contained" onPress={_onSignUpPressed} style={styles.button}>*/}
-                {/*    Registrarme*/}
-                {/*</Button>*/}
+                    <View style={[{flexDirection: 'row'}]}>
+                        <Button style={{flex: 1}} onPress={() => _previousStep()}>Anterior</Button>
+                        <Button style={{flex: 1}} onPress={() => _nextStep()}>{((!isParamedic && step == 2) || (isParamedic && step == 3)) ? 'Registrarme' : 'Siguiente'}</Button>
+                    </View>
 
-                {/*<View style={styles.row}>*/}
-                {/*    <Text style={styles.label}>¿Ya tienes cuenta? </Text>*/}
-                {/*    <TouchableOpacity onPress={() => navigation.navigate('LoginScreen')}>*/}
-                {/*        <Text style={styles.link}>Ingresar</Text>*/}
-                {/*    </TouchableOpacity>*/}
-                {/*</View>*/}
-            </Background>
-        </ScrollContainer>
+                </View>
+
+            </ScrollView>
+        </View>
     );
 };
 
-const styles = StyleSheet.create({
-    label: {
-        color: theme.colors.secondary,
-    },
-    button: {
-        marginTop: 24,
-        maxWidth: '85%',
-    },
-    row: {
-        flexDirection: 'row',
-        marginTop: 4,
-        marginBottom: 25,
-    },
-    link: {
-        fontWeight: 'bold',
-        color: theme.colors.primary,
-    },
-    input: {
-        marginHorizontal: 25,
-    }
-});
+const stepsStyles = {
+        stepIndicatorSize: 25,
+        currentStepIndicatorSize:30,
+        separatorStrokeWidth: 2,
+        currentStepStrokeWidth: 3,
+        stepStrokeCurrentColor: '#1fb317',
+        stepStrokeWidth: 3,
+        stepStrokeFinishedColor: '#1fb317',
+        stepStrokeUnFinishedColor: '#aaaaaa',
+        separatorFinishedColor: '#1fb317',
+        separatorUnFinishedColor: '#aaaaaa',
+        stepIndicatorFinishedColor: '#1fb317',
+        stepIndicatorUnFinishedColor: '#ffffff',
+        stepIndicatorCurrentColor: '#ffffff',
+        stepIndicatorLabelFontSize: 13,
+        currentStepIndicatorLabelFontSize: 13,
+        stepIndicatorLabelCurrentColor: '#1fb317',
+        stepIndicatorLabelFinishedColor: '#ffffff',
+        stepIndicatorLabelUnFinishedColor: '#aaaaaa',
+        labelColor: '#999999',
+        labelSize: 13,
+        currentStepLabelColor: '#1fb317'
+}
 
 export default memo(RegisterScreen);

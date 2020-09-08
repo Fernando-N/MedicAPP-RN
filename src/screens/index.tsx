@@ -13,3 +13,5 @@ export {default as FeedbacksScreen} from './FeedbacksScreen/FeedbacksScreen';
 export {default as EditProfileScreen} from './EditProfileScreen/EditProfileScreen';
 export {default as RateProfileScreen} from './RateProfileScreen/RateProfileScreen';
 export {default as ReportProfileScreen} from './ReportProfileScreen/ReportProfileScreen';
+export {default as HospitalsScreen} from './HospitalsScreen/HospitalsScreen';
+export {default as DrugstoresScreen} from './DrugstoresScreen/DrugstoresScreen';

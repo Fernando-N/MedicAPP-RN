@@ -1,22 +1,23 @@
 import React, { memo, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
-import { Validate } from '../../core/utils';
+import { Validate } from '../../utils/utils';
 import Background from '../../components/Background';
 import Logo from '../../components/Logo';
 import Header from '../../components/Header';
-import TextInput from '../../components/TextInput';
 import { theme } from '../../core/theme';
-import Button from '../../components/Button';
 import ScrollContainer from '../../components/ScrollContainer';
-import {Navigation} from '../../models/';
-import { AuthService } from '../../clients/auth/AuthService';
+import {AuthService, NavigationService} from "../../services";
+import FirstStep from "./components/FirstStep";
+import SecondStep from "./components/SecondStep";
 
-type Props = {
-    navigation: Navigation;
-};
-
-const ForgotPasswordScreen = ({navigation}: Props) => {
+const ForgotPasswordScreen = () => {
+    const [step, setStep] = useState(0);
     const [email, setEmail] = useState({value: '', error: ''});
+    const [token, setToken] = useState({value: '', error: ''});
+    const [password, setPassword] = useState({value: '', error: ''});
+    const [password2, setPassword2] = useState({value: '', error: ''});
+
+    let inputs = [];
 
     const _onSendPressed = () => {
         const emailError = Validate.email(email.value);
@@ -28,39 +29,65 @@ const ForgotPasswordScreen = ({navigation}: Props) => {
 
         AuthService.forgotPassword(email.value);
 
-        Alert.alert('Restablecer contaseña', `Si el correo ${email.value} se encuentra registrado recibiras un correo electronico para restablecer tu contraseña.`);
-
-        navigation.navigate('LoginScreen');
+        setStep(1);
     };
+
+    const _onChangePassword = async () => {
+
+        const response = await AuthService.resetPassword(token.value, password.value, password2.value);
+
+        if (response.success == false) {
+            Alert.alert(
+                'Error al restablecer contraseña',
+                response.error ? response.error : 'Error al restablecer contraseña, reintentalo mas tarde',
+                [{
+                    text: 'OK', onPress: () => {}
+                }]
+            )
+            return;
+        }
+
+        Alert.alert(
+            'Contraseña restablecida con exito',
+            'Contraseña restablecida con exito, ya puedes usar MedicAPP!',
+            [
+                { text: "OK", onPress: () => NavigationService.navigate('LoginScreen') }
+            ],
+            { cancelable: false }
+        );
+
+    }
 
     return (
         <ScrollContainer>
             <Background>
 
-                <Logo/>
-
                 <Header>Recuperar contraseña</Header>
 
-                <TextInput
-                    label="Email"
-                    returnKeyType="done"
-                    value={email.value}
-                    onChangeText={text => setEmail({value: text, error: ''})}
-                    error={email.error}
-                    errorText={email.error}
-                    autoCapitalize="none"
-                    autoCompleteType="email"
-                    textContentType="emailAddress"
-                    keyboardType="email-address"
-                />
+                {step == 0 &&
+                    <FirstStep
+                        email={email}
+                        setEmail={setEmail}
+                        _onSendPressed={_onSendPressed}
+                    />
+                }
 
-                <Button mode="contained" onPress={_onSendPressed} style={styles.button}>
-                    Enviar
-                </Button>
+                {step == 1 &&
+                    <SecondStep
+                        inputs={inputs}
+                        token={token}
+                        setToken={setToken}
+                        password={password}
+                        setPassword={setPassword}
+                        password2={password2}
+                        setPassword2={setPassword2}
+                        _onSend2Pressed={_onChangePassword}
+                    />
+                }
 
                 <TouchableOpacity
                     style={styles.back}
-                    onPress={() => navigation.navigate('LoginScreen')}
+                    onPress={() => NavigationService.navigate('LoginScreen')}
                 >
                     <Text style={styles.label}>← Volver al login</Text>
                 </TouchableOpacity>

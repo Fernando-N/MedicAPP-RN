@@ -3,11 +3,11 @@ import {StyleSheet,Text,View, Image, Alert} from 'react-native'
 import LinearGradient from "react-native-linear-gradient";
 import {TouchableOpacity} from "react-native-gesture-handler";
 import Feather from 'react-native-vector-icons/Feather';
-import {User, Navigation} from '../../../models/';
+import {User} from '../../../models/';
 import Rating from "../../../components/Rating";
+import {NavigationService} from "../../../services";
 
 type Props = {
-    navigation: Navigation,
     user: User,
     isMyProfile: boolean,
     isParamedic: boolean,
@@ -15,10 +15,10 @@ type Props = {
     onPressRating?: any,
 };
 
-const Header = ({navigation, user, isMyProfile, isParamedic, stars, onPressRating}: Props) => {
+const Header = ({user, isMyProfile, isParamedic, stars, onPressRating}: Props) => {
 
     const _contact = () => {
-        navigation.navigate('MessageScreen', {
+        NavigationService.navigate('MessageScreen', {
             userId: user.key,
             name: `${user.firstName} ${user.lastName}`
         })
